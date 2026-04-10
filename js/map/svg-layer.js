@@ -1,5 +1,5 @@
-import { svgEl, positionTasksOnLane, getTowerPosition } from '../utils.js';
-import { LANE_COLORS, HERO_PORTRAITS, heroStatusColor } from '../data/heroes.js';
+import { svgEl, positionTasksOnLane, getTowerPosition, formatShort } from '../utils.js';
+import { LANE_COLORS, HERO_PORTRAITS, CREEP_PORTRAITS, heroStatusColor } from '../data/heroes.js';
 import { label } from '../labels.js';
 
 export function drawSvgLayer(svgRoot, w, h, state, camera) {
@@ -144,14 +144,8 @@ export function drawSvgLayer(svgRoot, w, h, state, camera) {
   });
 
   // Minions (tiered traction units with Dota creep portraits)
-  const CREEP_PORTRAITS = {
-    basic: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/units/npc_dota_creep_goodguys_melee.png',
-    wizard: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/units/npc_dota_creep_goodguys_ranged.png',
-    super: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/units/npc_dota_goodguys_siege.png',
-  };
-
   (state.minions || []).forEach(m => {
-    if (m.count <= 0 && m.type !== 'super') return;
+    if (m.count <= 0 && !m.name) return;
     const cx = w * m.x / 100, cy = h * m.y / 100;
     const g = svgEl('g', { style: 'cursor:grab' });
     g.dataset.minionId = m.id;
@@ -175,7 +169,7 @@ export function drawSvgLayer(svgRoot, w, h, state, camera) {
       const bx = cx + r - 2, by = cy - r + 2;
       g.appendChild(svgEl('circle', { cx: bx, cy: by, r: badgeR, fill: '#19242f', stroke: borderColor, 'stroke-width': 0.8 }));
       const countText = svgEl('text', { x: bx, y: by + 2.5, 'text-anchor': 'middle', fill: borderColor, 'font-size': m.count >= 1000 ? 4 : 5, 'font-weight': 700 });
-      countText.textContent = m.count >= 1000000 ? Math.round(m.count/1000000)+'M' : m.count >= 1000 ? Math.round(m.count/1000)+'K' : m.count;
+      countText.textContent = formatShort(m.count);
       g.appendChild(countText);
     }
 
