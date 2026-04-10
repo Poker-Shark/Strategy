@@ -20,7 +20,7 @@ import { showModal, showConfirm, closeModal } from './ui/modal.js';
 import { exportMapImage } from './ui/export-image.js';
 import { detectLane, downloadBlob } from './utils.js';
 import { label, getMode, setMode, onModeChange } from './labels.js';
-import { initAuth, onAuthChange } from './auth.js';
+import { initAuth, onAuthChange, getUser } from './auth.js';
 import { initAuthUI } from './ui/auth-ui.js';
 import { loadFromCloud } from './cloud-sync.js';
 
