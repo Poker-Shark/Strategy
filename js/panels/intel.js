@@ -3,6 +3,8 @@ import { label } from '../labels.js';
 import { showModal, showConfirm } from '../ui/modal.js';
 import { esc } from '../utils.js';
 
+let _wired = false;
+
 export function renderIntelPanel() {
   const panel = document.getElementById('intelPanel');
   const collapsed = STATE.intelCollapsed;
@@ -39,19 +41,22 @@ export function renderIntelPanel() {
 
   panel.innerHTML = html;
 
-  // Toggle
-  document.getElementById('intelToggle').addEventListener('click', () => {
-    STATE.intelCollapsed = !STATE.intelCollapsed;
-    renderIntelPanel();
-    panel.addEventListener('transitionend', function h() {
-      panel.removeEventListener('transitionend', h);
-      window.dispatchEvent(new Event('resize'));
-    });
-    saveLocal();
-  });
-
-  // Delegated click handler for intel items
+  // All click handling — delegated on persistent panel, wired once
+  if (_wired) return;
+  _wired = true;
   panel.addEventListener('click', (e) => {
+    // Toggle collapse
+    if (e.target.closest('#intelToggle')) {
+      STATE.intelCollapsed = !STATE.intelCollapsed;
+      renderIntelPanel();
+      panel.addEventListener('transitionend', function h() {
+        panel.removeEventListener('transitionend', h);
+        window.dispatchEvent(new Event('resize'));
+      });
+      saveLocal();
+      return;
+    }
+
     const row = e.target.closest('.intel-item-row');
 
     // Cycle type (green → orange → red → gray → green)

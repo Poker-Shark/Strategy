@@ -335,8 +335,10 @@ function updateLabels() {
 
 onModeChange(() => { updateLabels(); fullRefresh(); renderIntelPanel(); drawAll(); });
 
-// Flush pending cloud sync before page unloads
-window.addEventListener('beforeunload', () => { forceSyncToCloud(STATE); });
+// Flush state to localStorage on unload (cloud sync via saveLocal's debounce is best-effort)
+window.addEventListener('beforeunload', () => {
+  try { localStorage.setItem('ps-strategy-v2', JSON.stringify(STATE)); } catch(e) {}
+});
 window.addEventListener('resize', resize);
 resize();
 updateLabels();
