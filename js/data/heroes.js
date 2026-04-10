@@ -71,6 +71,13 @@ export function taskStatusColor(status) { return TASK_STATUS_COLORS[status] || T
 
 // Preload all portraits
 export function preloadPortraits() {
-  const urls = new Set([...Object.values(HERO_PORTRAITS), ...POS3_CANDIDATES.map(c => portraitUrl(c.slug))]);
+  const urls = new Set([
+    ...Object.values(HERO_PORTRAITS),
+    ...POS3_CANDIDATES.map(c => portraitUrl(c.slug)),
+    // Creep portraits
+    'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/units/npc_dota_creep_goodguys_melee.png',
+    'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/units/npc_dota_creep_goodguys_ranged.png',
+    'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/units/npc_dota_goodguys_siege.png',
+  ]);
   urls.forEach(url => { new Image().src = url; });
 }

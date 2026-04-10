@@ -143,35 +143,46 @@ export function drawSvgLayer(svgRoot, w, h, state, camera) {
     svgRoot.appendChild(g);
   });
 
-  // Minions (tiered traction units)
+  // Minions (tiered traction units with Dota creep portraits)
+  const CREEP_PORTRAITS = {
+    basic: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/units/npc_dota_creep_goodguys_melee.png',
+    wizard: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/units/npc_dota_creep_goodguys_ranged.png',
+    super: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/units/npc_dota_goodguys_siege.png',
+  };
+
   (state.minions || []).forEach(m => {
     if (m.count <= 0 && m.type !== 'super') return;
     const cx = w * m.x / 100, cy = h * m.y / 100;
     const g = svgEl('g', { style: 'cursor:grab' });
     g.dataset.minionId = m.id;
 
-    if (m.type === 'basic') {
-      g.appendChild(svgEl('circle', { cx, cy, r:7, fill:'rgba(77,204,112,0.2)', stroke:'rgba(77,204,112,0.5)', 'stroke-width':0.8 }));
-      const txt = svgEl('text', { x:cx, y:cy+3, 'text-anchor':'middle', fill:'#4dcc70', 'font-size':5, 'font-weight':700 });
-      txt.textContent = m.count >= 1000 ? Math.round(m.count/1000)+'K' : m.count;
-      g.appendChild(txt);
-    } else if (m.type === 'wizard') {
-      g.appendChild(svgEl('circle', { cx, cy, r:10, fill:'rgba(77,204,112,0.12)', stroke:'rgba(120,230,140,0.6)', 'stroke-width':1 }));
-      const star = svgEl('text', { x:cx, y:cy+4, 'text-anchor':'middle', fill:'#78e68c', 'font-size':9, 'font-weight':700 });
-      star.textContent = '★'; g.appendChild(star);
-      if (m.count > 0) {
-        const badge = svgEl('text', { x:cx+8, y:cy-7, 'text-anchor':'middle', fill:'#78e68c', 'font-size':5, 'font-weight':700 });
-        badge.textContent = 'x'+m.count; g.appendChild(badge);
-      }
-    } else if (m.type === 'super') {
-      const pts = []; for (let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;pts.push(`${cx+14*Math.cos(a)},${cy+14*Math.sin(a)}`);}
-      g.appendChild(svgEl('polygon', { points:pts.join(' '), fill:'rgba(77,204,112,0.1)', stroke:'#f0c040', 'stroke-width':1.5 }));
-      const icon = svgEl('text', { x:cx, y:cy+4, 'text-anchor':'middle', fill:'#f0c040', 'font-size':10, 'font-weight':700 });
-      icon.textContent = '♛'; g.appendChild(icon);
-      if (m.name) {
-        const nm = svgEl('text', { x:cx, y:cy+20, 'text-anchor':'middle', fill:'rgba(240,192,64,0.5)', 'font-size':5, 'font-weight':600 });
-        nm.textContent = m.name; g.appendChild(nm);
-      }
+    const portrait = CREEP_PORTRAITS[m.type];
+    const r = m.type === 'super' ? 14 : m.type === 'wizard' ? 10 : 7;
+    const borderColor = m.type === 'super' ? '#f0c040' : m.type === 'wizard' ? '#78e68c' : '#4dcc70';
+
+    // Portrait circle
+    const clipId = 'mclip_' + m.id;
+    const clip = svgEl('clipPath', { id: clipId });
+    clip.appendChild(svgEl('circle', { cx, cy, r: r - 1.5 }));
+    defs.appendChild(clip);
+
+    g.appendChild(svgEl('circle', { cx, cy, r, fill:'rgba(0,0,0,0.4)', stroke: borderColor, 'stroke-width': m.type === 'super' ? 1.5 : 1 }));
+    g.appendChild(svgEl('image', { href: portrait, x: cx-(r-1.5), y: cy-(r-1.5), width: (r-1.5)*2, height: (r-1.5)*2, 'clip-path': `url(#${clipId})`, preserveAspectRatio: 'xMidYMid slice' }));
+
+    // Count badge (top-right)
+    if (m.count > 0) {
+      const badgeR = m.type === 'super' ? 6 : 5;
+      const bx = cx + r - 2, by = cy - r + 2;
+      g.appendChild(svgEl('circle', { cx: bx, cy: by, r: badgeR, fill: '#19242f', stroke: borderColor, 'stroke-width': 0.8 }));
+      const countText = svgEl('text', { x: bx, y: by + 2.5, 'text-anchor': 'middle', fill: borderColor, 'font-size': m.count >= 1000 ? 4 : 5, 'font-weight': 700 });
+      countText.textContent = m.count >= 1000000 ? Math.round(m.count/1000000)+'M' : m.count >= 1000 ? Math.round(m.count/1000)+'K' : m.count;
+      g.appendChild(countText);
+    }
+
+    // Name label for super minions
+    if (m.type === 'super' && m.name) {
+      const nm = svgEl('text', { x:cx, y:cy+r+8, 'text-anchor':'middle', fill:'rgba(240,192,64,0.5)', 'font-size':5, 'font-weight':600 });
+      nm.textContent = m.name; g.appendChild(nm);
     }
 
     g.dataset.ttTitle = m.label || m.type;
