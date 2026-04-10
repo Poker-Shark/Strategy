@@ -18,7 +18,7 @@
   --river: #2a6090;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--void);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+body{background:var(--void);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;height:100vh;margin:0}
 
 /* ── TOP BAR ── */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;z-index:50}
@@ -35,10 +35,19 @@ body{background:var(--void);color:var(--text);font-family:'Segoe UI',system-ui,s
 .metric .val.green{color:var(--radiant)}
 
 /* ── AUTH ── */
+.auth-gate{position:fixed;inset:0;z-index:500;background:var(--void);display:flex;align-items:center;justify-content:center}
+.auth-gate.hidden{display:none}
+.auth-gate-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px;width:100%;max-width:360px;text-align:center}
+.auth-gate-logo{font-size:28px;font-weight:800;letter-spacing:3px;color:var(--radiant);margin-bottom:4px}
+.auth-gate-subtitle{font-size:12px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
+.auth-gate-form{display:flex;flex-direction:column;gap:10px}
+.auth-gate-form .mf-input{text-align:left;padding:10px 14px;font-size:14px}
+.auth-gate-alt{font-size:11px;color:var(--text3);margin-top:6px}
+.auth-gate-error{font-size:11px;color:var(--dire);min-height:16px;margin-top:4px}
 .auth-login{font-size:10px!important;padding:3px 8px!important}
 .auth-user{display:flex;align-items:center;gap:6px}
-.auth-avatar{width:20px;height:20px;border-radius:50%;object-fit:cover}
 .auth-name{font-size:11px;color:var(--text2);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-shell{display:flex;flex-direction:column;height:100vh}
 
 /* ── MODE TOGGLE ── */
 .mode-toggle{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;height:22px;font-size:10px;font-weight:700;letter-spacing:1px;flex-shrink:0}

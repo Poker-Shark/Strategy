@@ -365,15 +365,65 @@ resize();
 updateLabels();
 showBriefing(onEnterWarRoom, fullRefresh);
 
-// Auth (non-blocking — app is already rendered from localStorage)
-initAuth().then(() => initAuthUI());
+// ── Auth Gate ──
+import { signIn, signUp } from './auth.js';
+
+const authGate = document.getElementById('authGate');
+const appShell = document.getElementById('appShell');
+let isSignUp = false;
+
+function showApp() {
+  authGate.classList.add('hidden');
+  appShell.style.display = '';
+  resize();
+}
+
+function showGate() {
+  authGate.classList.remove('hidden');
+  appShell.style.display = 'none';
+}
+
+// Gate form wiring
+document.getElementById('gateSignIn').addEventListener('click', async () => {
+  const email = document.getElementById('gateEmail').value.trim();
+  const password = document.getElementById('gatePassword').value;
+  const errEl = document.getElementById('gateError');
+  errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = 'Email and password required'; return; }
+
+  const result = isSignUp ? await signUp(email, password) : await signIn(email, password);
+  if (result.error) errEl.textContent = result.error;
+});
+
+document.getElementById('gateToggle').addEventListener('click', () => {
+  isSignUp = !isSignUp;
+  document.getElementById('gateSignIn').textContent = isSignUp ? 'SIGN UP' : 'SIGN IN';
+  document.getElementById('gateToggle').innerHTML = isSignUp
+    ? 'Have an account? <span style="color:var(--gold);cursor:pointer">Sign in</span>'
+    : 'No account? <span style="color:var(--gold);cursor:pointer">Sign up</span>';
+});
+
+// Enter key on password field
+document.getElementById('gatePassword').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('gateSignIn').click();
+});
+
+// Auth state drives visibility
+initAuth().then(() => {
+  initAuthUI();
+  if (getUser()) showApp(); else showGate();
+});
+
 onAuthChange(async (user) => {
   initAuthUI();
   if (user) {
+    showApp();
     const cloud = await loadFromCloud();
     if (cloud && cloud.state) {
       Object.assign(STATE, cloud.state);
       fullRefresh(); renderIntelPanel(); drawAll(); saveLocal();
     }
+  } else {
+    showGate();
   }
 });
