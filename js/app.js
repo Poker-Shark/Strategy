@@ -122,39 +122,14 @@ minimapWrap.addEventListener('click', (e) => {
 });
 minimapWrap.addEventListener('dblclick', () => { camera.toggleBirdseye(); drawPan(); });
 
-// ── Panel-to-map hero drag ──
-document.getElementById('draftPanel').addEventListener('pointerdown', (e) => {
-  const card = e.target.closest('[data-draggable="true"]');
+// ── Panel hero click → open detail ──
+document.getElementById('draftPanel').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-hero-click]');
   if (!card) return;
   const heroId = card.dataset.heroId;
-  const hero = STATE.heroes.find(h => h.id === heroId);
-  if (!hero || hero.status === 'empty') return;
-  e.preventDefault();
-  card.classList.add('dragging');
-
-  const ghost = document.createElement('div');
-  ghost.className = 'drag-ghost';
-  const portrait = HERO_PORTRAITS[heroId];
-  ghost.innerHTML = portrait ? `<img src="${portrait}">` : `<span style="color:#fff;font-size:18px;font-weight:800">${hero.name.charAt(0)}</span>`;
-  ghost.style.left = (e.clientX - 20) + 'px'; ghost.style.top = (e.clientY - 20) + 'px';
-  document.body.appendChild(ghost);
-
-  function onMove(e) { ghost.style.left = (e.clientX - 20) + 'px'; ghost.style.top = (e.clientY - 20) + 'px'; }
-  function onUp(e) {
-    document.removeEventListener('pointermove', onMove);
-    document.removeEventListener('pointerup', onUp);
-    ghost.remove();
-    const rect = mapWrap.getBoundingClientRect();
-    if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
-      const pos = camera.screenToMap(e.clientX, e.clientY, rect, W, H);
-      hero.lane = detectLane(pos.x, pos.y);
-      STATE.heroPositions[hero.id] = { x: pos.x, y: pos.y };
-      saveLocal();
-    }
-    fullRefresh();
+  if (heroId && heroId !== 'pos3') {
+    openHeroDetail(heroId, fullRefresh);
   }
-  document.addEventListener('pointermove', onMove);
-  document.addEventListener('pointerup', onUp);
 });
 
 // ── SVG click — hero detail, roshan, camps ──

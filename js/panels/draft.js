@@ -86,25 +86,6 @@ export function renderDraftPanel(onRedraw) {
     });
   }
 
-  // ── Wire level editing ──
-  panel.querySelectorAll('.lvl-edit').forEach(el => {
-    el.addEventListener('click', () => {
-      const hero = STATE.heroes.find(h => h.id === el.dataset.heroId);
-      if (!hero) return;
-      showModal({
-        title: `${hero.name} — Level`,
-        fields: [
-          { key: 'level', label: `Level (0-${hero.maxLevel})`, type: 'number', value: hero.level, min: 0, max: hero.maxLevel },
-        ],
-        onSave: (v) => {
-          hero.level = Math.max(0, Math.min(hero.maxLevel, v.level));
-          hero.vision = levelToVision(hero.level);
-          saveLocal(); renderDraftPanel(onRedraw); if (onRedraw) onRedraw();
-        },
-      });
-    });
-  });
-
   // ── Delegated click handler for camps + towers ──
   panel.addEventListener('click', (e) => {
     // Camp actions
@@ -149,12 +130,11 @@ function renderHeroCard(h) {
     ? `<img src="${portrait}" alt="${esc(h.name)}">`
     : (h.status === 'empty' ? '?' : h.name.charAt(0));
 
-  const isDraggable = h.status !== 'empty';
   const pos3Extra = h.id === 'pos3' ? renderPos3Picker() : '';
 
   return `
     <div class="hero-card ${h.status === 'empty' ? 'empty' : ''}"
-         data-hero-id="${h.id}" ${isDraggable ? 'data-draggable="true"' : ''}>
+         data-hero-id="${h.id}" data-hero-click="true" style="cursor:pointer">
       <div class="hero-status"><span class="status-dot ${h.status}"></span></div>
       <div class="hero-top">
         <div class="hero-avatar ${avatarClass}">${avatarInner}</div>
@@ -165,13 +145,11 @@ function renderHeroCard(h) {
         <div class="hero-lane-tag ${h.lane}">${h.lane}</div>
       </div>
       ${h.level > 0 ? `
-        <div class="hero-level">Lvl <span class="lvl lvl-edit" data-hero-id="${h.id}" title="Click to edit level">${h.level}</span> / ${h.maxLevel} — vision: ${h.vision}</div>
         <div class="hero-bars">
           <div class="mini-bar" title="${label('hp')}: ${Math.round(h.hp*40/100)}h/wk"><div class="mini-bar-fill hp" style="width:${Math.min(100,h.hp)}%"></div></div>
           <div class="mini-bar" title="${label('mp')}: ${h.mp}%"><div class="mini-bar-fill mp" style="width:${h.mp}%"></div></div>
         </div>
       ` : ''}
-      <div class="hero-note">${esc(h.note)}</div>
       ${pos3Extra}
     </div>
   `;
