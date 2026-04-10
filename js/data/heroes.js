@@ -21,6 +21,9 @@ export const POS3_CANDIDATES = [
 
 export const LANE_COLORS = { mid: '#e0a030', top: '#4dcc70', bot: '#4488dd' };
 
+// HP = hours committed per week (100% = 40hrs), MP = morale (0-100)
+export const HP_MAX_HOURS = 40;
+
 export const HERO_ABILITIES = {
   jack: [
     { name:'Blink', key:'Q', desc:'Quickly shift focus between lanes — redirect attention to where it matters most' },

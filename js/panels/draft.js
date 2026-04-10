@@ -167,8 +167,8 @@ function renderHeroCard(h) {
       ${h.level > 0 ? `
         <div class="hero-level">Lvl <span class="lvl lvl-edit" data-hero-id="${h.id}" title="Click to edit level">${h.level}</span> / ${h.maxLevel} — vision: ${h.vision}</div>
         <div class="hero-bars">
-          <div class="mini-bar" title="Energy"><div class="mini-bar-fill hp" style="width:${h.hp}%"></div></div>
-          <div class="mini-bar" title="Resources"><div class="mini-bar-fill mp" style="width:${h.mp}%"></div></div>
+          <div class="mini-bar" title="${label('hp')}: ${Math.round(h.hp*40/100)}h/wk"><div class="mini-bar-fill hp" style="width:${Math.min(100,h.hp)}%"></div></div>
+          <div class="mini-bar" title="${label('mp')}: ${h.mp}%"><div class="mini-bar-fill mp" style="width:${h.mp}%"></div></div>
         </div>
       ` : ''}
       <div class="hero-note">${esc(h.note)}</div>

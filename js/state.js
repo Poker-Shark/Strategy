@@ -24,16 +24,16 @@ export const STATE = {
     {
       id:'jack', name:'Jack Lian', pos:2, role:'Mid — Product Visionary',
       lane:'mid', level:11, maxLevel:30, vision:8,
-      hp:90, mp:75, status:'active',
-      note:'Peak timing window. Product is the weapon — signal system shipped, UI polished. But mid-game power falls off without solver depth and team support.',
-      dota:'Like a QoP at 11 — dominating mid, but the hero doesn\'t scale infinitely. Needs the team to convert this advantage.'
+      hp:200, mp:90, status:'active',
+      note:'Carrying the team. 80hrs/wk. Signal system shipped, UI polished, strategy tool built. Product map position is strong. Needs solver depth and team support to scale.',
+      dota:'QoP at 11 running at 200% HP — dominating mid through sheer will. The hero is overclocked but this pace isn\'t sustainable without the team stepping up.'
     },
     {
       id:'hu', name:'Prof. Hu', pos:1, role:'Carry — Solver / Academic',
       lane:'bot', level:4, maxLevel:30, vision:6,
-      hp:70, mp:90, status:'active',
-      note:'Racing toward Solver v2 + Solution Depth. Carrying Sacred Relic (core solver engine) — first component of Divine Rapier.',
-      dota:'Spectre with a Sacred Relic in inventory — the Rapier is being assembled. Protect the farm, don\'t rush him. Late game win condition.'
+      hp:75, mp:90, status:'active',
+      note:'Methodology is defined. Sacred Relic (core solver engine) in progress. Needs money and time to complete the Divine Rapier. Don\'t rush — late game win condition.',
+      dota:'Spectre at 4 with Sacred Relic building. The methodology is the blueprint — now it\'s about farming gold to finish the Rapier. Protect and fund.'
     },
     {
       id:'pos3', name:'??? (Co-Founder)', pos:3, role:'Offlane — Ops / Biz Dev',
@@ -45,30 +45,30 @@ export const STATE = {
     {
       id:'clarence', name:'Clarence', pos:4, role:'Support — Rotating',
       lane:'mid', level:3, maxLevel:30, vision:4,
-      hp:65, mp:50, status:'warning',
-      note:'Supporting mid lane, joining Jack. Build not yet defined — needs to figure out his skill tree. Will rotate to top lane once build is set.',
-      dota:'Crystal Maiden vibes — just needs to buy wards and clear fog of war. Potential is there.'
+      hp:25, mp:90, status:'warning',
+      note:'10hrs/wk supporting mid lane with Jack. Build not yet defined — needs to figure out his skill tree. High morale, low hours. Will rotate to top lane once build is set.',
+      dota:'Crystal Maiden at 10hrs/wk — high morale but limited mana pool. Needs to commit more time or find her niche fast.'
     },
     {
       id:'anthony', name:'Anthony', pos:4, role:'River Ganker — Web / SEO',
       lane:'river', level:5, maxLevel:30, vision:4,
-      hp:80, mp:70, status:'active',
-      note:'Operating in the river — web + SEO + organic growth. Excellent given his level. A ganker who creates pick-offs across the map.',
-      dota:'Spirit Breaker — doesn\'t own a lane but Charges across the map creating gold swings through smart rotations.'
+      hp:25, mp:80, status:'active',
+      note:'10hrs/wk on web + SEO + organic growth. Excellent output given his hours. A precision ganker — small time investment, high-value pick-offs across the map.',
+      dota:'Spirit Breaker at 10hrs/wk — every Charge counts. Efficient ganker who makes the most of limited availability.'
     },
     {
-      id:'minh', name:'Minh', pos:5, role:'Dev — Underperforming',
-      lane:'mid', level:2, maxLevel:30, vision:3,
-      hp:40, mp:30, status:'danger',
-      note:'Techies energy. Laid some foundational mines/wards but creating drag. 3-4 week window before replacement.',
-      dota:'Techies — placed some remote mines early but we don\'t want Techies in this match.'
+      id:'minh', name:'Minh', pos:5, role:'Dev',
+      lane:'mid', level:4, maxLevel:30, vision:4,
+      hp:150, mp:30, status:'danger',
+      note:'60hrs/wk but morale is critically low at 30. High hours, low output — the time isn\'t converting to value. Needs direction or a role change.',
+      dota:'Techies putting in overtime but the mines aren\'t landing. 60hrs of presence but the map impact doesn\'t match the investment.'
     },
     {
-      id:'steve', name:'Steve', pos:5, role:'Dev — Underperforming',
+      id:'steve', name:'Steve', pos:5, role:'Dev',
       lane:'top', level:3, maxLevel:30, vision:3,
-      hp:45, mp:25, status:'danger',
-      note:'Techies #2. Lack of time and communication. Not present enough to contribute. 3-4 week evaluation window.',
-      dota:'Techies who keeps going AFK — even the mines stop getting placed.'
+      hp:10, mp:50, status:'danger',
+      note:'4hrs/wk. Not enough presence to make meaningful contributions. Morale at 50 — not checked out but not committed either.',
+      dota:'Techies who logs in for 4hrs and places one mine. The lane doesn\'t feel his presence.'
     },
   ],
 
@@ -219,7 +219,7 @@ export const STATE = {
       items: [
         { text:'2.94M hands processed through ML pipeline', type:'green' },
         { text:'K-means clustering identifying player types', type:'green' },
-        { text:'Prof. Hu defining methodology — needs time', type:'orange' },
+        { text:'Prof. Hu methodology defined — needs funding + time for solver', type:'green' },
         { text:'No external validation yet', type:'orange' },
         { text:'No published paper — credibility not yet earned', type:'gray' },
       ]

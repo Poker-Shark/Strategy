@@ -58,8 +58,8 @@ export const LABELS = {
   abilities:      { biz: 'Capabilities', dota: 'Abilities' },
   laneTasks:      { biz: 'Lane Objectives', dota: 'Lane Tasks' },
   dotaAnalogy:    { biz: 'Gaming Analogy', dota: 'Dota Analogy' },
-  hp:             { biz: 'Energy',       dota: 'HP' },
-  mp:             { biz: 'Resources',    dota: 'MP' },
+  hp:             { biz: 'Hours/wk',     dota: 'HP' },
+  mp:             { biz: 'Morale',       dota: 'MP' },
   lvl:            { biz: 'Level',        dota: 'Lvl' },
   vision:         { biz: 'reach',        dota: 'vision' },
 

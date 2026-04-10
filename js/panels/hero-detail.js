@@ -40,12 +40,13 @@ export function openHeroDetail(heroId, onUpdate) {
 
       <div class="hd-stats">
         <div class="hd-stat-row">
-          <span class="hd-stat-label">HP</span>
-          <div class="hd-bar"><div class="hd-bar-fill hp" style="width:${hero.hp}%"></div></div>
-          <input type="number" class="hd-input-sm" id="hdHp" value="${hero.hp}" min="0" max="100">
+          <span class="hd-stat-label">${label('hp')}</span>
+          <div class="hd-bar"><div class="hd-bar-fill hp" style="width:${Math.min(100, hero.hp)}%"></div></div>
+          <input type="number" class="hd-input-sm" id="hdHp" value="${hero.hp}" min="0" max="200" style="width:48px">
+          <span style="font-size:9px;color:var(--text3)">${Math.round(hero.hp * 40 / 100)}h/wk</span>
         </div>
         <div class="hd-stat-row">
-          <span class="hd-stat-label">MP</span>
+          <span class="hd-stat-label">${label('mp')}</span>
           <div class="hd-bar"><div class="hd-bar-fill mp" style="width:${hero.mp}%"></div></div>
           <input type="number" class="hd-input-sm" id="hdMp" value="${hero.mp}" min="0" max="100">
         </div>
@@ -93,7 +94,7 @@ export function openHeroDetail(heroId, onUpdate) {
   document.getElementById('hdSave').addEventListener('click', () => {
     hero.level = Math.max(0, Math.min(hero.maxLevel, parseInt(document.getElementById('hdLevel').value) || 0));
     hero.vision = Math.max(0, Math.min(20, parseInt(document.getElementById('hdVision').value) || 0));
-    hero.hp = Math.max(0, Math.min(100, parseInt(document.getElementById('hdHp').value) || 0));
+    hero.hp = Math.max(0, Math.min(200, parseInt(document.getElementById('hdHp').value) || 0));
     hero.mp = Math.max(0, Math.min(100, parseInt(document.getElementById('hdMp').value) || 0));
     hero.note = document.getElementById('hdNotes').value;
     saveLocal();
