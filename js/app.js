@@ -335,6 +335,8 @@ function updateLabels() {
 
 onModeChange(() => { updateLabels(); fullRefresh(); renderIntelPanel(); drawAll(); });
 
+// Flush pending cloud sync before page unloads
+window.addEventListener('beforeunload', () => { forceSyncToCloud(STATE); });
 window.addEventListener('resize', resize);
 resize();
 updateLabels();

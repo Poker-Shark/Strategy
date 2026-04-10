@@ -1,6 +1,7 @@
 // Drag entities (heroes, towers, camps) directly on the map
 import { STATE, saveLocal } from '../state.js';
 import { detectLane } from '../utils.js';
+import { forceSyncToCloud } from '../cloud-sync.js';
 
 let entityDrag = null;
 
@@ -79,6 +80,7 @@ export function initEntityDrag(svgRoot, mapWrap, camera, getSize, drawDynamic) {
     }
 
     saveLocal();
+    forceSyncToCloud(STATE);
     drawDynamic();
   });
 
