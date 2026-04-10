@@ -22,7 +22,7 @@ import { detectLane, downloadBlob } from './utils.js';
 import { label, getMode, setMode, onModeChange } from './labels.js';
 import { initAuth, onAuthChange, getUser } from './auth.js';
 import { initAuthUI } from './ui/auth-ui.js';
-import { loadFromCloud } from './cloud-sync.js';
+import { loadFromCloud, suppressSync, forceSyncToCloud } from './cloud-sync.js';
 
 // ── DOM refs ──
 const terrainCanvas = document.getElementById('mapTerrain');
@@ -409,11 +409,19 @@ onAuthChange(async (user) => {
   initAuthUI();
   if (user) {
     showApp();
+    // Load cloud state — suppress sync to avoid writing defaults back
+    suppressSync(true);
     const cloud = await loadFromCloud();
     if (cloud && cloud.state) {
       Object.assign(STATE, cloud.state);
-      fullRefresh(); renderIntelPanel(); drawAll(); saveLocal();
+      // Persist cloud data to localStorage
+      try { localStorage.setItem('ps-strategy-v2', JSON.stringify(STATE)); } catch(e) {}
+      fullRefresh(); renderIntelPanel(); drawAll();
+    } else {
+      // No cloud data yet — push current local state to cloud
+      await forceSyncToCloud(STATE);
     }
+    suppressSync(false);
   } else {
     showGate();
   }
