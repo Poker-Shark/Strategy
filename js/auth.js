@@ -5,12 +5,22 @@ const _listeners = [];
 
 export function getUser() { return _user; }
 
-export async function signIn() {
-  if (!supabase) return;
-  await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin },
-  });
+export async function signIn(email, password) {
+  if (!supabase) return { error: 'No Supabase configured' };
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return { error: error.message };
+  _user = data.user;
+  _notify();
+  return { error: null };
+}
+
+export async function signUp(email, password) {
+  if (!supabase) return { error: 'No Supabase configured' };
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) return { error: error.message };
+  _user = data.user;
+  _notify();
+  return { error: null };
 }
 
 export async function signOut() {
@@ -20,13 +30,8 @@ export async function signOut() {
   _notify();
 }
 
-export function onAuthChange(cb) {
-  _listeners.push(cb);
-}
-
-function _notify() {
-  _listeners.forEach(cb => cb(_user));
-}
+export function onAuthChange(cb) { _listeners.push(cb); }
+function _notify() { _listeners.forEach(cb => cb(_user)); }
 
 export async function initAuth() {
   if (!supabase) return;
