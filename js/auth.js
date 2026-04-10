@@ -14,14 +14,6 @@ export async function signIn(email, password) {
   return { error: null };
 }
 
-export async function signUp(email, password) {
-  if (!supabase) return { error: 'No Supabase configured' };
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) return { error: error.message };
-  _user = data.user;
-  _notify();
-  return { error: null };
-}
 
 export async function signOut() {
   if (!supabase) return;

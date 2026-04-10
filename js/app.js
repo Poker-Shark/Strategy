@@ -366,11 +366,10 @@ updateLabels();
 showBriefing(onEnterWarRoom, fullRefresh);
 
 // ── Auth Gate ──
-import { signIn, signUp } from './auth.js';
+import { signIn } from './auth.js';
 
 const authGate = document.getElementById('authGate');
 const appShell = document.getElementById('appShell');
-let isSignUp = false;
 
 function showApp() {
   authGate.classList.add('hidden');
@@ -391,16 +390,8 @@ document.getElementById('gateSignIn').addEventListener('click', async () => {
   errEl.textContent = '';
   if (!email || !password) { errEl.textContent = 'Email and password required'; return; }
 
-  const result = isSignUp ? await signUp(email, password) : await signIn(email, password);
+  const result = await signIn(email, password);
   if (result.error) errEl.textContent = result.error;
-});
-
-document.getElementById('gateToggle').addEventListener('click', () => {
-  isSignUp = !isSignUp;
-  document.getElementById('gateSignIn').textContent = isSignUp ? 'SIGN UP' : 'SIGN IN';
-  document.getElementById('gateToggle').innerHTML = isSignUp
-    ? 'Have an account? <span style="color:var(--gold);cursor:pointer">Sign in</span>'
-    : 'No account? <span style="color:var(--gold);cursor:pointer">Sign up</span>';
 });
 
 // Enter key on password field
