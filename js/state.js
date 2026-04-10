@@ -225,7 +225,6 @@ export const STATE = {
       ]
     },
   }
-  }
 };
 
 // ── Phase Snapshots ──
