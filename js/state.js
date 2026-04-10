@@ -198,30 +198,29 @@ export const STATE = {
     mid: {
       title:'Mid Lane — Product', status:'pushing',
       items: [
-        { text:'Signal System v2 live — 152 signals, 85 strong', type:'green' },
-        { text:'Villain reveal lifecycle working', type:'green' },
-        { text:'UI framework stable (394 JS files)', type:'green' },
-        { text:'No public beta yet — timing window narrowing', type:'orange' },
-        { text:'GTO Wizard just launched mobile + trainer mode', type:'red' },
+        { id:'im1', text:'Signal System v2 live — 152 signals, 85 strong', type:'green' },
+        { id:'im2', text:'Villain reveal lifecycle working', type:'green' },
+        { id:'im3', text:'UI framework stable', type:'green' },
+        { id:'im4', text:'Beta is 1 month out — onboarding + retention loops in progress', type:'orange' },
       ]
     },
     top: {
       title:'Top Lane — Ops / Marketing', status:'dark',
       items: [
-        { text:'CI/CD operational (Render 7-repo chain)', type:'green' },
-        { text:'NO marketing presence — lane completely dark', type:'red' },
-        { text:'No social, no landing page, no content', type:'red' },
-        { text:'Pos 3 slot empty — no one to push this lane', type:'red' },
+        { id:'it1', text:'CI/CD operational (Render 7-repo deploy chain)', type:'green' },
+        { id:'it2', text:'NO marketing presence — lane completely dark', type:'red' },
+        { id:'it3', text:'No social, no landing page, no content', type:'red' },
+        { id:'it4', text:'Pos 3 slot empty — no one to push this lane', type:'red' },
       ]
     },
     bot: {
       title:'Bot Lane — Solver / Academic', status:'farming',
       items: [
-        { text:'2.94M hands processed through ML pipeline', type:'green' },
-        { text:'K-means clustering identifying player types', type:'green' },
-        { text:'Prof. Hu methodology defined — needs funding + time for solver', type:'green' },
-        { text:'No external validation yet', type:'orange' },
-        { text:'No published paper — credibility not yet earned', type:'gray' },
+        { id:'ib1', text:'2.94M hands processed through ML pipeline', type:'green' },
+        { id:'ib2', text:'K-means clustering identifying player types', type:'green' },
+        { id:'ib3', text:'Solver methodology defined — needs funding to build', type:'green' },
+        { id:'ib4', text:'No external validation yet', type:'orange' },
+        { id:'ib5', text:'No published paper — credibility not yet earned', type:'gray' },
       ]
     },
   }
