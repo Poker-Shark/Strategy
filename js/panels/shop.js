@@ -89,7 +89,7 @@ function renderItem(item) {
           ${item.id === 'divine_rapier' ? '⚔' : '🎭'}
         </div>
         <div class="item-info">
-          <div class="item-name">${esc(item.name)}</div>
+          <div class="item-name">${esc(item.id === 'divine_rapier' ? label('divineRapier') : item.id === 'mask_of_madness' ? label('maskOfMadness') : item.name)}</div>
           <div class="item-subtitle">${esc(item.subtitle)}</div>
         </div>
         <div class="item-status-badge item-status-cycle" data-item-id="${item.id}" style="color:${statusColor};border-color:${statusColor}" title="Click to cycle status">

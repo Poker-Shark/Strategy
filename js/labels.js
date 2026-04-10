@@ -84,6 +84,10 @@ export const LABELS = {
   stacked:        { biz: 'available',    dota: 'stacked' },
   cleared:        { biz: 'captured',     dota: 'cleared' },
 
+  // Shop items
+  divineRapier:   { biz: 'The Solver',    dota: 'Divine Rapier' },
+  maskOfMadness:  { biz: 'Ken Partnership', dota: 'Mask of Madness' },
+
   // Economy
   gold:           { biz: 'MRR',          dota: 'Gold' },
   runway:         { biz: 'Runway',       dota: 'Buyback Timer' },

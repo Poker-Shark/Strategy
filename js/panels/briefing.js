@@ -71,7 +71,8 @@ function getAlerts() {
   (STATE.shop || []).forEach(item => {
     if (item.status === 'building') {
       const comp = item.components.find(c => c.status === 'building');
-      alerts.push({ type: 'info', name: item.name, msg: `${item.progress}% complete${comp ? ' — ' + comp.name + ': ' + comp.progress + '%' : ''}` });
+      const displayName = item.id === 'divine_rapier' ? label('divineRapier') : item.id === 'mask_of_madness' ? label('maskOfMadness') : item.name;
+      alerts.push({ type: 'info', name: displayName, msg: `${item.progress}% complete${comp ? ' — ' + comp.name + ': ' + comp.progress + '%' : ''}` });
     }
   });
   return alerts;
