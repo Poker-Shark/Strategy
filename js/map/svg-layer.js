@@ -42,7 +42,7 @@ export function drawSvgLayer(svgRoot, w, h, state, camera) {
       else { fill = 'rgba(255,255,255,0.04)'; stroke = 'rgba(255,255,255,0.15)'; opacity = 0.4; }
 
       const g = svgEl('g', { opacity });
-      const ts = 14; // tower size (larger than hero avatars)
+      const ts = 12;
 
       // Tower image
       const tClipId = 'tclip_' + t.id;
@@ -93,23 +93,15 @@ export function drawSvgLayer(svgRoot, w, h, state, camera) {
     const isCleared = camp.status === 'cleared';
     const campColor = isCleared ? 'rgba(255,255,255,0.15)' : 'rgba(200,180,80,0.3)';
     const campFill = isCleared ? 'rgba(255,255,255,0.03)' : 'rgba(200,180,80,0.06)';
-    const sz = camp.type === 'medium' ? 6 : 5;
+    const sz = camp.type === 'medium' ? 5 : 4;
 
     g.appendChild(svgEl('rect', { x:cx-sz, y:cy-sz, width:sz*2, height:sz*2, rx:2, fill:campFill, stroke:campColor, 'stroke-width':0.8, opacity:isCleared?0.5:0.8 }));
     if (camp.status === 'stacked') {
       g.appendChild(svgEl('rect', { x:cx-sz+1.5, y:cy-sz-2.5, width:sz*2-3, height:sz*2, rx:2, fill:'none', stroke:campColor, 'stroke-width':0.4, opacity:0.4 }));
     }
-    const icon = svgEl('text', { x:cx, y:cy+2.5, 'text-anchor':'middle', fill:isCleared?'rgba(255,255,255,0.3)':'rgba(200,180,80,0.6)', 'font-size':6, 'font-weight':700 });
+    const icon = svgEl('text', { x:cx, y:cy+2.5, 'text-anchor':'middle', fill:isCleared?'rgba(255,255,255,0.3)':'rgba(200,180,80,0.6)', 'font-size':5, 'font-weight':700 });
     icon.textContent = isCleared ? '✓' : '◆';
     g.appendChild(icon);
-    const label = svgEl('text', { x:cx, y:cy+sz+7, 'text-anchor':'middle', fill:isCleared?'rgba(255,255,255,0.2)':'rgba(200,180,80,0.4)', 'font-size':5, 'font-weight':600 });
-    label.textContent = camp.name;
-    g.appendChild(label);
-    if (camp.gold || camp.xp) {
-      const val = svgEl('text', { x:cx, y:cy+sz+12, 'text-anchor':'middle', fill:'rgba(240,192,64,0.35)', 'font-size':4, 'font-weight':600 });
-      val.textContent = (camp.gold ? '$'+camp.gold : '') + (camp.xp ? ' +'+camp.xp+'xp' : '');
-      g.appendChild(val);
-    }
     g.dataset.ttTitle = camp.name; g.dataset.ttDesc = camp.desc;
     g.dataset.ttStatus = camp.status + (camp.gold ? ' — $'+camp.gold : '');
     g.dataset.campId = camp.id;
@@ -151,20 +143,40 @@ export function drawSvgLayer(svgRoot, w, h, state, camera) {
     svgRoot.appendChild(g);
   });
 
-  // Minion waves
-  (state.minionWaves || []).forEach(mw => {
-    const cx = w * mw.x / 100, cy = h * mw.y / 100;
-    const g = svgEl('g', {});
-    const count = mw.count || 4;
-    for (let i = 0; i < count; i++) {
-      const angle = (Math.PI * 2 / count) * i;
-      const spread = 4 + (i % 2) * 2;
-      g.appendChild(svgEl('circle', { cx:cx+Math.cos(angle)*spread, cy:cy+Math.sin(angle)*spread, r:2, fill:'rgba(77,204,112,0.4)', stroke:'rgba(77,204,112,0.2)', 'stroke-width':0.4 }));
+  // Minions (tiered traction units)
+  (state.minions || []).forEach(m => {
+    if (m.count <= 0 && m.type !== 'super') return;
+    const cx = w * m.x / 100, cy = h * m.y / 100;
+    const g = svgEl('g', { style: 'cursor:grab' });
+    g.dataset.minionId = m.id;
+
+    if (m.type === 'basic') {
+      g.appendChild(svgEl('circle', { cx, cy, r:7, fill:'rgba(77,204,112,0.2)', stroke:'rgba(77,204,112,0.5)', 'stroke-width':0.8 }));
+      const txt = svgEl('text', { x:cx, y:cy+3, 'text-anchor':'middle', fill:'#4dcc70', 'font-size':5, 'font-weight':700 });
+      txt.textContent = m.count >= 1000 ? Math.round(m.count/1000)+'K' : m.count;
+      g.appendChild(txt);
+    } else if (m.type === 'wizard') {
+      g.appendChild(svgEl('circle', { cx, cy, r:10, fill:'rgba(77,204,112,0.12)', stroke:'rgba(120,230,140,0.6)', 'stroke-width':1 }));
+      const star = svgEl('text', { x:cx, y:cy+4, 'text-anchor':'middle', fill:'#78e68c', 'font-size':9, 'font-weight':700 });
+      star.textContent = '★'; g.appendChild(star);
+      if (m.count > 0) {
+        const badge = svgEl('text', { x:cx+8, y:cy-7, 'text-anchor':'middle', fill:'#78e68c', 'font-size':5, 'font-weight':700 });
+        badge.textContent = 'x'+m.count; g.appendChild(badge);
+      }
+    } else if (m.type === 'super') {
+      const pts = []; for (let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;pts.push(`${cx+14*Math.cos(a)},${cy+14*Math.sin(a)}`);}
+      g.appendChild(svgEl('polygon', { points:pts.join(' '), fill:'rgba(77,204,112,0.1)', stroke:'#f0c040', 'stroke-width':1.5 }));
+      const icon = svgEl('text', { x:cx, y:cy+4, 'text-anchor':'middle', fill:'#f0c040', 'font-size':10, 'font-weight':700 });
+      icon.textContent = '♛'; g.appendChild(icon);
+      if (m.name) {
+        const nm = svgEl('text', { x:cx, y:cy+20, 'text-anchor':'middle', fill:'rgba(240,192,64,0.5)', 'font-size':5, 'font-weight':600 });
+        nm.textContent = m.name; g.appendChild(nm);
+      }
     }
-    const laneColor = mw.lane === 'mid' ? '#e0a030' : mw.lane === 'top' ? '#4dcc70' : '#4488dd';
-    const arrow = svgEl('text', { x:cx+10, y:cy+3, 'text-anchor':'middle', fill:laneColor, 'font-size':8, opacity:0.5 });
-    arrow.textContent = '▶'; g.appendChild(arrow);
-    g.dataset.ttTitle = label('minionWave') + ' — ' + mw.lane.toUpperCase(); g.dataset.ttDesc = mw.desc; g.dataset.ttStatus = count + ' ' + label('creeps');
+
+    g.dataset.ttTitle = m.label || m.type;
+    g.dataset.ttDesc = m.type === 'super' ? (m.name || 'Unnamed partner') : m.count + ' ' + m.label;
+    g.dataset.ttStatus = m.type + ' — ' + m.lane + ' lane';
     svgRoot.appendChild(g);
   });
 
@@ -180,7 +192,7 @@ export function drawSvgLayer(svgRoot, w, h, state, camera) {
     // Vision radius (world-space, slightly increased multiplier)
     if (hero.vision > 0) {
       const vr = hero.vision * dim / 75; // increased from /100
-      g.appendChild(svgEl('circle', { cx, cy, r:vr, fill:'none', stroke:statusColor, 'stroke-width':0.4, 'stroke-dasharray':'2,3', opacity:0.15 }));
+      g.appendChild(svgEl('circle', { cx, cy, r:vr, fill:'none', stroke:statusColor, 'stroke-width':0.3, 'stroke-dasharray':'2,4', opacity:0.08 }));
     }
 
     // Hero portrait (increased from r:9 to r:12)

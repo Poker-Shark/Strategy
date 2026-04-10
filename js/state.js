@@ -116,9 +116,11 @@ export const STATE = {
   // Dire fog is now rendered procedurally in fog.js, not as individual zones
   fogZones: [],
 
-  // Minion waves — groups of creeps pushing lanes
-  minionWaves: [
-    { id:'mw1', lane:'mid', x:16, y:74, count:6, desc:'First product sprint — gathering at base, about to push mid' },
+  // Minions — tiered traction units pushing lanes
+  minions: [
+    { id:'mn1', type:'basic', count:0, lane:'mid', x:16, y:74, label:'Paying Users' },
+    { id:'mn2', type:'wizard', count:0, lane:'mid', x:20, y:72, label:'Community Leaders' },
+    { id:'mn3', type:'super', count:0, lane:'bot', x:14, y:82, label:'Sponsors', name:'' },
   ],
 
   // Economy
@@ -239,6 +241,7 @@ export function capturePhaseSnapshot() {
     wards: JSON.parse(JSON.stringify(STATE.wards)),
     campStatuses: Object.fromEntries((STATE.neutralCamps || []).map(c => [c.id, c.status])),
     heroOverrides: Object.fromEntries(STATE.heroes.map(h => [h.id, { level: h.level, vision: h.vision, hp: h.hp, mp: h.mp }])),
+    minions: JSON.parse(JSON.stringify(STATE.minions || [])),
   };
 }
 
@@ -248,6 +251,7 @@ export function applyPhaseSnapshot(snapshot) {
   STATE.fogHoles = JSON.parse(JSON.stringify(snapshot.fogHoles || STATE.fogHoles));
   STATE.fogZones = JSON.parse(JSON.stringify(snapshot.fogZones || STATE.fogZones));
   STATE.wards = JSON.parse(JSON.stringify(snapshot.wards || STATE.wards));
+  if (snapshot.minions) STATE.minions = JSON.parse(JSON.stringify(snapshot.minions));
 
   if (snapshot.towerStatuses) {
     for (const lane in snapshot.towerStatuses) {
@@ -324,6 +328,8 @@ export function loadLocal() {
       if (STATE.fogEditMode === undefined) STATE.fogEditMode = false;
       if (!STATE.laneNames) STATE.laneNames = { mid: 'Product', top: 'Ops', bot: 'Solver' };
       if (!STATE.phases) STATE.phases = { draft: null, laning: null, mid: null, late: null };
+      if (STATE.minionWaves) { delete STATE.minionWaves; }
+      if (!STATE.minions) STATE.minions = [];
     }
   } catch(e) {}
 }

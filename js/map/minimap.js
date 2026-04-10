@@ -75,15 +75,12 @@ export function drawMinimap(canvas, state) {
     ctx.beginPath(); ctx.arc(w*wd.x/100, h*wd.y/100, 2, 0, Math.PI*2); ctx.fill();
   });
 
-  // Minion waves
-  (state.minionWaves || []).forEach(mw => {
-    ctx.fillStyle = 'rgba(77,204,112,0.4)';
-    for (let i = 0; i < (mw.count || 4); i++) {
-      const a = Math.PI * 2 / mw.count * i, s = 2 + (i % 2);
-      ctx.beginPath();
-      ctx.arc(w*mw.x/100 + Math.cos(a)*s, h*mw.y/100 + Math.sin(a)*s, 1.5, 0, Math.PI*2);
-      ctx.fill();
-    }
+  // Minions
+  (state.minions || []).forEach(m => {
+    if (m.count <= 0 && m.type !== 'super') return;
+    const mx = w*m.x/100, my = h*m.y/100;
+    ctx.fillStyle = m.type === 'super' ? '#f0c040' : m.type === 'wizard' ? 'rgba(120,230,140,0.6)' : 'rgba(77,204,112,0.5)';
+    ctx.beginPath(); ctx.arc(mx, my, m.type === 'super' ? 3.5 : m.type === 'wizard' ? 3 : 2, 0, Math.PI*2); ctx.fill();
   });
 }
 

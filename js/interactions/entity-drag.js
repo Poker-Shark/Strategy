@@ -13,15 +13,16 @@ export function initEntityDrag(svgRoot, mapWrap, camera, getSize, drawDynamic) {
     const tower = e.target.closest('[data-tower-id]');
     const camp = e.target.closest('[data-camp-id]');
     const ward = e.target.closest('[data-ward-id]');
-    const target = hero || tower || camp || ward;
+    const minion = e.target.closest('[data-minion-id]');
+    const target = hero || tower || camp || ward || minion;
     if (!target || e.button !== 0) return;
 
     e.stopPropagation();
     e.preventDefault();
 
     entityDrag = {
-      type: hero ? 'hero' : tower ? 'tower' : camp ? 'camp' : 'ward',
-      id: hero ? hero.dataset.heroMap : tower ? tower.dataset.towerId : camp ? camp.dataset.campId : ward.dataset.wardId,
+      type: hero ? 'hero' : tower ? 'tower' : camp ? 'camp' : ward ? 'ward' : 'minion',
+      id: hero ? hero.dataset.heroMap : tower ? tower.dataset.towerId : camp ? camp.dataset.campId : ward ? ward.dataset.wardId : minion.dataset.minionId,
       lane: tower ? tower.dataset.towerLane : null,
       startX: e.clientX,
       startY: e.clientY,
@@ -69,6 +70,9 @@ export function initEntityDrag(svgRoot, mapWrap, camera, getSize, drawDynamic) {
     } else if (drag.type === 'camp') {
       const camp = (STATE.neutralCamps || []).find(c => c.id === drag.id);
       if (camp) { camp.x = pos.x; camp.y = pos.y; }
+    } else if (drag.type === 'minion') {
+      const m = (STATE.minions || []).find(mi => mi.id === drag.id);
+      if (m) { m.x = pos.x; m.y = pos.y; m.lane = detectLane(pos.x, pos.y); }
     } else if (drag.type === 'ward') {
       const ward = STATE.wards.find(w => w.id === drag.id);
       if (ward) {

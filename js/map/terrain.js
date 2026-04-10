@@ -59,9 +59,9 @@ export function drawTerrain(ctx, w, h, camera, state) {
   if (state && state.neutralCamps) {
     state.neutralCamps.forEach(camp => {
       const cx = w * camp.x / 100, cy = h * camp.y / 100;
-      ctx.fillStyle = 'rgba(255,255,255,0.02)';
-      ctx.beginPath(); ctx.arc(cx, cy, 14, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.03)'; ctx.lineWidth = 0.5; ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.01)';
+      ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.015)'; ctx.lineWidth = 0.5; ctx.stroke();
     });
   }
 

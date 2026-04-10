@@ -152,6 +152,32 @@ svgRoot.addEventListener('click', e => {
   }
 
   // Ward click → edit name/desc or delete
+  // Minion click → edit
+  const minionG = e.target.closest('[data-minion-id]');
+  if (minionG) {
+    const m = (STATE.minions || []).find(mi => mi.id === minionG.dataset.minionId);
+    if (!m) return;
+    const fields = [
+      { key: 'label', label: 'Label', type: 'text', value: m.label },
+      { key: 'count', label: 'Count', type: 'number', value: m.count, min: 0 },
+      { key: 'lane', label: 'Lane', type: 'select', value: m.lane, options: ['mid', 'top', 'bot'] },
+    ];
+    if (m.type === 'super') fields.splice(1, 0, { key: 'name', label: 'Name', type: 'text', value: m.name || '' });
+    fields.push({ key: '_delete', label: '', type: 'action', text: 'Delete this group', action: () => {
+      closeModal(); STATE.minions = STATE.minions.filter(mi => mi.id !== m.id); saveLocal(); drawDynamic();
+    }});
+    showModal({
+      title: m.label || m.type,
+      fields,
+      onSave: (v) => {
+        m.label = v.label || m.label; m.count = v.count; m.lane = v.lane;
+        if (m.type === 'super' && v.name !== undefined) m.name = v.name;
+        saveLocal(); drawDynamic();
+      },
+    });
+    return;
+  }
+
   const wardG = e.target.closest('[data-ward-id]');
   if (wardG) {
     const wd = STATE.wards.find(w => w.id === wardG.dataset.wardId);
@@ -279,6 +305,38 @@ document.getElementById('briefingBtn').addEventListener('click', () => toggleBri
 document.getElementById('shopBtn').addEventListener('click', () => toggleShop());
 document.getElementById('taskBtn').addEventListener('click', () => { closeTasks(); toggleTasks(); });
 document.getElementById('fogEditBtn').addEventListener('click', toggleFogEdit);
+document.getElementById('spawnBtn').addEventListener('click', () => {
+  showModal({
+    title: label('spawnBtn'),
+    fields: [
+      { key: 'type', label: 'Type', type: 'select', value: 'basic', options: [
+        { value: 'basic', label: 'Basic — Paying Users' },
+        { value: 'wizard', label: 'Wizard — Community Leaders / Recruiters' },
+        { value: 'super', label: 'Super — Sponsors / Influencers / Partners' },
+      ]},
+      { key: 'count', label: 'How many?', type: 'number', value: 1, min: 0 },
+      { key: 'name', label: 'Name (super minions only)', type: 'text' },
+      { key: 'label', label: 'Label', type: 'text', value: 'Paying Users' },
+      { key: 'lane', label: 'Lane', type: 'select', value: 'mid', options: [
+        { value: 'mid', label: (STATE.laneNames||{}).mid || 'Product' },
+        { value: 'top', label: (STATE.laneNames||{}).top || 'Ops' },
+        { value: 'bot', label: (STATE.laneNames||{}).bot || 'Solver' },
+      ]},
+    ],
+    onSave: (v) => {
+      if (!STATE.minions) STATE.minions = [];
+      const base = { mid:{x:16,y:74}, top:{x:10,y:60}, bot:{x:14,y:82} };
+      const p = base[v.lane] || base.mid;
+      STATE.minions.push({
+        id: 'mn' + Date.now(), type: v.type, count: v.count, lane: v.lane,
+        x: p.x + (Math.random()*4-2), y: p.y + (Math.random()*4-2),
+        label: v.label || (v.type === 'basic' ? 'Users' : v.type === 'wizard' ? 'Leaders' : 'Partner'),
+        name: v.type === 'super' ? v.name : undefined,
+      });
+      saveLocal(); drawDynamic();
+    },
+  });
+});
 document.getElementById('savesBtn').addEventListener('click', () => showSaveLoadModal(() => { fullRefresh(); renderIntelPanel(); drawAll(); }));
 document.getElementById('screenshotBtn').addEventListener('click', () => exportMapImage(terrainCanvas, fogCanvas, svgRoot));
 document.getElementById('exportBtn').addEventListener('click', exportState);
@@ -295,6 +353,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'b') toggleShop();
   if (e.key === 't') toggleTasks();
   if (e.key === 'e') toggleFogEdit();
+  if (e.key === 'm') document.getElementById('spawnBtn').click();
   if (e.key === 'Tab') { e.preventDefault(); STATE.panelCollapsed = !STATE.panelCollapsed; renderDraftPanel(drawDynamic); saveLocal(); }
   if (e.key === 'z' && (e.ctrlKey || e.metaKey) && !e.shiftKey) { e.preventDefault(); if (undo()) { fullRefresh(); renderIntelPanel(); drawAll(); } }
   if ((e.key === 'z' && (e.ctrlKey || e.metaKey) && e.shiftKey) || (e.key === 'y' && (e.ctrlKey || e.metaKey))) { e.preventDefault(); if (redo()) { fullRefresh(); renderIntelPanel(); drawAll(); } }
@@ -319,7 +378,7 @@ function updateLabels() {
   // Phase status
   document.getElementById('phaseStatus').textContent = label('status_' + STATE.phase);
   // Bottom bar buttons
-  const btnLabels = { briefingBtn:'briefingBtn', shopBtn:'shopBtn', taskBtn:'taskBtn', fogBtn:'fogBtn', fogEditBtn:'fogEditBtn', wardBtn:'wardBtn', resetFogBtn:'resetFogBtn' };
+  const btnLabels = { briefingBtn:'briefingBtn', shopBtn:'shopBtn', taskBtn:'taskBtn', spawnBtn:'spawnBtn', fogBtn:'fogBtn', fogEditBtn:'fogEditBtn', wardBtn:'wardBtn', resetFogBtn:'resetFogBtn' };
   for (const [id, key] of Object.entries(btnLabels)) {
     const el = document.getElementById(id);
     if (el) { const keySpan = el.querySelector('.key'); el.textContent = label(key) + ' '; if (keySpan) el.appendChild(keySpan); }
