@@ -124,12 +124,12 @@ minimapWrap.addEventListener('dblclick', () => { camera.toggleBirdseye(); drawPa
 
 // ── Panel hero click → open detail ──
 document.getElementById('draftPanel').addEventListener('click', (e) => {
-  const card = e.target.closest('[data-hero-click]');
+  const card = e.target.closest('[data-hero-id]');
   if (!card) return;
   const heroId = card.dataset.heroId;
-  if (heroId && heroId !== 'pos3') {
-    openHeroDetail(heroId, fullRefresh);
-  }
+  if (!heroId) return;
+  const hero = STATE.heroes.find(h => h.id === heroId);
+  if (hero && hero.status !== 'empty') openHeroDetail(heroId, fullRefresh);
 });
 
 // ── SVG click — hero detail, roshan, camps ──
@@ -384,19 +384,19 @@ onAuthChange(async (user) => {
   initAuthUI();
   if (user) {
     showApp();
-    // Load cloud state — suppress sync to avoid writing defaults back
     suppressSync(true);
-    const cloud = await loadFromCloud();
-    if (cloud && cloud.state) {
-      Object.assign(STATE, cloud.state);
-      // Persist cloud data to localStorage
-      try { localStorage.setItem('ps-strategy-v2', JSON.stringify(STATE)); } catch(e) {}
-      fullRefresh(); renderIntelPanel(); drawAll();
-    } else {
-      // No cloud data yet — push current local state to cloud
-      await forceSyncToCloud(STATE);
+    try {
+      const cloud = await loadFromCloud();
+      if (cloud && cloud.state) {
+        Object.assign(STATE, cloud.state);
+        try { localStorage.setItem('ps-strategy-v2', JSON.stringify(STATE)); } catch(e) {}
+        fullRefresh(); renderIntelPanel(); drawAll();
+      } else {
+        forceSyncToCloud(STATE);
+      }
+    } finally {
+      suppressSync(false);
     }
-    suppressSync(false);
   } else {
     showGate();
   }

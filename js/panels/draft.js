@@ -134,7 +134,7 @@ function renderHeroCard(h) {
 
   return `
     <div class="hero-card ${h.status === 'empty' ? 'empty' : ''}"
-         data-hero-id="${h.id}" data-hero-click="true" style="cursor:pointer">
+         data-hero-id="${h.id}" style="cursor:pointer">
       <div class="hero-status"><span class="status-dot ${h.status}"></span></div>
       <div class="hero-top">
         <div class="hero-avatar ${avatarClass}">${avatarInner}</div>
