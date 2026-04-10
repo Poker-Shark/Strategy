@@ -16,12 +16,6 @@ export function renderIntelPanel() {
     </div>`;
   });
 
-  const gaps = STATE.intel.gaps;
-  html += `<div class="intel-card">
-    <div class="intel-title general">${gaps.title}</div>
-    ${gaps.items.map(i => `<div class="intel-row"><div class="dot ${i.type}"></div><span>${i.text}</span></div>`).join('')}
-  </div>`;
-
   html += `<div class="intel-card">
     <div class="intel-title" style="color:var(--dire)">${label('direSection')}</div>
     ${STATE.dire.map(d => `<div class="competitor-entry">

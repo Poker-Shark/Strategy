@@ -224,17 +224,7 @@ export const STATE = {
         { text:'No published paper — credibility not yet earned', type:'gray' },
       ]
     },
-    gaps: {
-      title:'Market Gaps (Our Advantages)',
-      items: [
-        { text:'Nobody doing chess.com-style "learn as you play"', type:'green' },
-        { text:'Solver fatigue is real — players want intuition not frequencies', type:'green' },
-        { text:'No gamification in training (puzzles, streaks, leagues)', type:'green' },
-        { text:'No social learning layer exists anywhere', type:'green' },
-        { text:'Exploitative coaching ignored — all tools teach GTO only', type:'green' },
-        { text:'$5-15/mo price point untapped (GTO Wizard starts at $39)', type:'green' },
-      ]
-    }
+  }
   }
 };
 
