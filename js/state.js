@@ -333,6 +333,7 @@ export function loadLocal() {
       if (!STATE.phases) STATE.phases = { draft: null, laning: null, mid: null, late: null };
       if (STATE.minionWaves) { delete STATE.minionWaves; }
       if (!STATE.minions) STATE.minions = [];
+      STATE._version = STATE_VERSION;
     }
   } catch(e) {}
 }

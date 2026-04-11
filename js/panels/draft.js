@@ -6,6 +6,7 @@ import { label } from '../labels.js';
 import { showModal, showConfirm } from '../ui/modal.js';
 
 let _onRedraw = null;
+let _wired = false;
 
 // Section collapse state (session only, not persisted)
 const sections = { team: true, towers: true, camps: true };
@@ -87,8 +88,8 @@ export function renderDraftPanel(onRedraw) {
   }
 
   // ── Delegated click handler for camps + towers (wire once) ──
-  if (!panel._draftWired) {
-  panel._draftWired = true;
+  if (!_wired) {
+  _wired = true;
   panel.addEventListener('click', (e) => {
     // Camp actions
     const clear = e.target.closest('.camp-clear-btn');
