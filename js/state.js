@@ -2,7 +2,10 @@ import { syncToCloud } from './cloud-sync.js';
 
 const STORAGE_KEY = 'ps-strategy-v2';
 
+export const STATE_VERSION = 4; // bump this to force fresh defaults over stale cloud data
+
 export const STATE = {
+  _version: STATE_VERSION,
   phase: 'draft',
   labelMode: 'biz',
   fogEnabled: true,

@@ -1,4 +1,4 @@
-import { STATE, saveLocal, loadLocal, undo, redo, capturePhaseSnapshot, applyPhaseSnapshot } from './state.js';
+import { STATE, STATE_VERSION, saveLocal, loadLocal, undo, redo, capturePhaseSnapshot, applyPhaseSnapshot } from './state.js';
 import { preloadPortraits, HERO_PORTRAITS } from './data/heroes.js';
 import { Camera } from './map/camera.js';
 import { drawTerrain } from './map/terrain.js';
@@ -450,11 +450,12 @@ onAuthChange(async (user) => {
     suppressSync(true);
     try {
       const cloud = await loadFromCloud();
-      if (cloud && cloud.state) {
+      if (cloud && cloud.state && cloud.state._version >= STATE_VERSION) {
         Object.assign(STATE, cloud.state);
         try { localStorage.setItem('ps-strategy-v2', JSON.stringify(STATE)); } catch(e) {}
         fullRefresh(); renderIntelPanel(); drawAll();
       } else {
+        // Cloud data is stale or missing — push fresh defaults
         forceSyncToCloud(STATE);
       }
     } finally {
