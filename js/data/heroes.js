@@ -58,7 +58,7 @@ export const HERO_ABILITIES = {
   ],
   minh: [
     { name:'Proximity Mines', key:'Q', desc:'Set up foundational code — delayed value, triggers when someone steps on it' },
-    { name:'Stasis Trap', key:'W', desc:'Create drag — traps that slow the team instead of helping' },
+    { name:'Stasis Trap', key:'W', desc:'Complexity traps — work that looks productive but doesn\'t move the needle' },
     { name:'Blast Off', key:'E', desc:'Risky move — damages self to maybe damage the problem' },
     { name:'Remote Mines', key:'R', desc:'Delayed value — might pay off, might not. Hard to tell.' },
   ],

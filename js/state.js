@@ -60,8 +60,8 @@ export const STATE = {
       id:'minh', name:'Minh', pos:5, role:'Dev',
       lane:'mid', level:4, maxLevel:30, vision:4,
       hp:150, mp:30, status:'danger',
-      note:'60hrs/wk but morale is critically low at 30. High hours, low output — the time isn\'t converting to value. Needs direction or a role change.',
-      dota:'Techies putting in overtime but the mines aren\'t landing. 60hrs of presence but the map impact doesn\'t match the investment.'
+      note:'60hrs/wk but morale is low at 30. Putting in the hours — needs clearer direction to convert time into impact.',
+      dota:'Techies putting in overtime — mines are being placed but need better positioning. Needs guidance on where to focus.'
     },
     {
       id:'steve', name:'Steve', pos:5, role:'Dev',
