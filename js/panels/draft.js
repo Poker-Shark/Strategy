@@ -86,7 +86,9 @@ export function renderDraftPanel(onRedraw) {
     });
   }
 
-  // ── Delegated click handler for camps + towers ──
+  // ── Delegated click handler for camps + towers (wire once) ──
+  if (!panel._draftWired) {
+  panel._draftWired = true;
   panel.addEventListener('click', (e) => {
     // Camp actions
     const clear = e.target.closest('.camp-clear-btn');
@@ -109,6 +111,7 @@ export function renderDraftPanel(onRedraw) {
     const tCycle = e.target.closest('.tower-status-btn');
     if (tCycle) { cycleTowerStatus(tCycle.dataset.lane, tCycle.dataset.id); return; }
   });
+  } // end _draftWired
 }
 
 // ── Section header with toggle ──
