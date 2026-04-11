@@ -1,8 +1,9 @@
-import { STATE } from '../state.js';
+import { STATE, saveLocal } from '../state.js';
 import { LANE_COLORS, HERO_PORTRAITS, heroStatusColor } from '../data/heroes.js';
 import { esc, formatNum, formatShort } from '../utils.js';
 import { openHeroDetail } from './hero-detail.js';
 import { label } from '../labels.js';
+import { showModal } from '../ui/modal.js';
 
 let briefingVisible = true;
 let _onEnter = null;
@@ -154,7 +155,7 @@ function renderBriefing() {
               <div class="bl-next">
                 ${next ? `<span class="bl-next-label">NEXT:</span> ${esc(next.name)}` : '<span style="color:var(--text3)">All locked</span>'}
               </div>
-              ${risk ? `<div class="bl-risk ${risk.type}"><span class="bl-risk-dot"></span>${esc(risk.text)}</div>` : ''}
+              ${risk ? `<div class="bl-risk ${risk.type} bl-risk-edit" data-risk-lane="${lane}" data-risk-id="${risk.id}" title="Click to edit"><span class="bl-risk-dot"></span>${esc(risk.text)}</div>` : ''}
             </div>
           `;
         }).join('')}
@@ -210,7 +211,8 @@ function renderBriefing() {
 
   el.querySelectorAll('[data-briefing-lane]').forEach(card => {
     card.addEventListener('click', (ev) => {
-      if (ev.target.closest('[data-briefing-hero]')) return; // let hero click handle it
+      if (ev.target.closest('[data-briefing-hero]')) return;
+      if (ev.target.closest('.bl-risk-edit')) return;
       hideBriefing();
       if (_onEnter) _onEnter(card.dataset.briefingLane);
     });
@@ -221,6 +223,35 @@ function renderBriefing() {
       ev.stopPropagation();
       hideBriefing();
       openHeroDetail(pip.dataset.briefingHero, _fullRefresh);
+    });
+  });
+
+  // Risk item editing
+  el.querySelectorAll('.bl-risk-edit').forEach(riskEl => {
+    riskEl.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const lane = riskEl.dataset.riskLane;
+      const id = riskEl.dataset.riskId;
+      const item = (STATE.intel[lane]?.items || []).find(i => i.id === id);
+      if (!item) return;
+      showModal({
+        title: 'Edit Intel',
+        fields: [
+          { key: 'text', label: 'Status update', type: 'textarea', value: item.text, required: true },
+          { key: 'type', label: 'Type', type: 'select', value: item.type, options: [
+            { value: 'green', label: 'Green — on track' },
+            { value: 'orange', label: 'Orange — at risk' },
+            { value: 'red', label: 'Red — blocked / critical' },
+            { value: 'gray', label: 'Gray — not started' },
+          ]},
+          { key: '_delete', label: '', type: 'action', text: 'Delete this item', action: () => {
+            import('../ui/modal.js').then(m => m.closeModal());
+            STATE.intel[lane].items = STATE.intel[lane].items.filter(i => i.id !== id);
+            saveLocal(); renderBriefing();
+          }},
+        ],
+        onSave: (v) => { item.text = v.text; item.type = v.type; saveLocal(); renderBriefing(); },
+      });
     });
   });
 }
