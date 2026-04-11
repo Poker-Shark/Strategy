@@ -2,7 +2,7 @@ import { syncToCloud } from './cloud-sync.js';
 
 const STORAGE_KEY = 'ps-strategy-v2';
 
-export const STATE_VERSION = 4; // bump this to force fresh defaults over stale cloud data
+export const STATE_VERSION = 10; // bumped to force nuke of all stale data
 
 export const STATE = {
   _version: STATE_VERSION,
@@ -313,27 +313,15 @@ export function loadLocal() {
   try {
     const s = localStorage.getItem(STORAGE_KEY);
     if (s) {
-      Object.assign(STATE, JSON.parse(s));
-      // Migrations
-      STATE.heroes.forEach(h => {
-        if (h.lane === 'bench' && h.id === 'minh') h.lane = 'mid';
-        if ((h.lane === 'bench' || h.lane === 'mid') && h.id === 'steve') h.lane = 'top';
-        if (h.vision === undefined) h.vision = 5;
-      });
-      // Migrate towers with x,y but no order
-      for (const lane in STATE.towers) {
-        STATE.towers[lane].forEach((t, i) => {
-          if (t.order === undefined) { t.order = i; delete t.x; delete t.y; }
-        });
+      const loaded = JSON.parse(s);
+      // Reject stale data — only load if version matches
+      if (loaded._version >= STATE_VERSION) {
+        Object.assign(STATE, loaded);
+      } else {
+        // Nuke stale localStorage
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('ps-strategy-saves');
       }
-      // Ensure new fields exist
-      if (!STATE.fogZones) STATE.fogZones = [];
-      if (STATE.fogEditMode === undefined) STATE.fogEditMode = false;
-      if (!STATE.laneNames) STATE.laneNames = { mid: 'Product', top: 'Ops', bot: 'Solver' };
-      if (!STATE.phases) STATE.phases = { draft: null, laning: null, mid: null, late: null };
-      if (STATE.minionWaves) { delete STATE.minionWaves; }
-      if (!STATE.minions) STATE.minions = [];
-      STATE._version = STATE_VERSION;
     }
   } catch(e) {}
 }
