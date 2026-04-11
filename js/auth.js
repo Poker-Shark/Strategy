@@ -5,6 +5,11 @@ const _listeners = [];
 
 export function getUser() { return _user; }
 
+const EDITORS = ['jack@pokrshark.com', 'yihchun@pokrshark.com'];
+export function isEditor() {
+  return _user && EDITORS.includes(_user.email);
+}
+
 export async function signIn(email, password) {
   if (!supabase) return { error: 'No Supabase configured' };
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });

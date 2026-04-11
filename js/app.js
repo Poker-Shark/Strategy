@@ -20,7 +20,7 @@ import { showModal, showConfirm, closeModal } from './ui/modal.js';
 import { exportMapImage } from './ui/export-image.js';
 import { detectLane, downloadBlob } from './utils.js';
 import { label, getMode, setMode, onModeChange } from './labels.js';
-import { initAuth, onAuthChange, getUser } from './auth.js';
+import { initAuth, onAuthChange, getUser, isEditor } from './auth.js';
 import { initAuthUI } from './ui/auth-ui.js';
 import { loadFromCloud, suppressSync, forceSyncToCloud } from './cloud-sync.js';
 
@@ -447,6 +447,7 @@ onAuthChange(async (user) => {
   initAuthUI();
   if (user) {
     showApp();
+    document.body.classList.toggle('read-only', !isEditor());
     suppressSync(true);
     try {
       const cloud = await loadFromCloud();

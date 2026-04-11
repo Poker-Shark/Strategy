@@ -1,4 +1,4 @@
-import { getUser, signIn, signOut, onAuthChange } from '../auth.js';
+import { getUser, signIn, signOut, onAuthChange, isEditor } from '../auth.js';
 import { supabase } from '../supabase.js';
 
 export function initAuthUI() {
@@ -18,9 +18,11 @@ function renderAuthSlot() {
     document.getElementById('authSignIn')?.addEventListener('click', () => {});
   } else {
     const name = user.email || '';
+    const role = isEditor() ? 'Editor' : 'Viewer';
     slot.innerHTML = `
       <div class="auth-user">
         <span class="auth-name">${name.split('@')[0]}</span>
+        <span style="font-size:8px;color:${isEditor() ? 'var(--radiant)' : 'var(--text3)'};text-transform:uppercase;letter-spacing:1px">${role}</span>
         <button class="btn auth-login" id="authSignOut">Out</button>
       </div>
     `;

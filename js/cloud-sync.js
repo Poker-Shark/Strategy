@@ -1,28 +1,29 @@
 import { supabase } from './supabase.js';
-import { getUser } from './auth.js';
+import { getUser, isEditor } from './auth.js';
 
 let _debounceTimer = null;
 const DEBOUNCE_MS = 2000;
 let _suppressSync = false;
 
-// Temporarily suppress cloud sync (used during cloud load to avoid write-back)
+// Shared room ID — everyone reads/writes the same board
+const SHARED_ROOM = 'shared';
+
 export function suppressSync(val) { _suppressSync = val; }
 
 export function syncToCloud(state) {
-  if (!supabase || !getUser() || _suppressSync) return;
+  if (!supabase || !getUser() || !isEditor() || _suppressSync) return;
   clearTimeout(_debounceTimer);
-  // Snapshot state NOW, not when debounce fires
   const snapshot = JSON.stringify(state);
   _debounceTimer = setTimeout(() => _doSync(snapshot), DEBOUNCE_MS);
 }
 
 async function _doSync(stateJson) {
   const user = getUser();
-  if (!user || !supabase) return;
+  if (!user || !supabase || !isEditor()) return;
   try {
     const { error } = await supabase.from('war_rooms').upsert({
       user_id: user.id,
-      name: 'Default',
+      name: SHARED_ROOM,
       state: JSON.parse(stateJson),
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id,name' });
@@ -33,14 +34,15 @@ async function _doSync(stateJson) {
 }
 
 export async function loadFromCloud() {
-  const user = getUser();
-  if (!user || !supabase) return null;
+  if (!supabase || !getUser()) return null;
   try {
+    // Load from any editor's shared room (get the latest)
     const { data, error } = await supabase
       .from('war_rooms')
       .select('state, updated_at')
-      .eq('user_id', user.id)
-      .eq('name', 'Default')
+      .eq('name', SHARED_ROOM)
+      .order('updated_at', { ascending: false })
+      .limit(1)
       .single();
     if (error && error.code !== 'PGRST116') console.warn('Cloud load error:', error.message);
     return data;
@@ -49,10 +51,9 @@ export async function loadFromCloud() {
   }
 }
 
-// Force an immediate save (no debounce) — used on critical actions
 export async function forceSyncToCloud(state) {
   const user = getUser();
-  if (!user || !supabase) return;
+  if (!user || !supabase || !isEditor()) return;
   clearTimeout(_debounceTimer);
   await _doSync(JSON.stringify(state));
 }

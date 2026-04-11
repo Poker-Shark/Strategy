@@ -34,6 +34,31 @@ body{background:var(--void);color:var(--text);font-family:'Segoe UI',system-ui,s
 .metric .val.gold{color:var(--gold)}
 .metric .val.green{color:var(--radiant)}
 
+/* ── READ-ONLY MODE (viewers) ── */
+body.read-only .hero-card,
+body.read-only .tower-card,
+body.read-only .camp-card,
+body.read-only .tower-add-btn,
+body.read-only .camp-preset,
+body.read-only #addCampBtn,
+body.read-only .intel-type-btn,
+body.read-only .intel-text-btn,
+body.read-only .intel-delete-btn,
+body.read-only .intel-add-btn,
+body.read-only .tower-edit-btn,
+body.read-only .tower-delete-btn,
+body.read-only .tower-status-btn,
+body.read-only .camp-clear-btn,
+body.read-only .camp-edit-btn,
+body.read-only .camp-delete-btn,
+body.read-only .section-toggle,
+body.read-only #spawnBtn,
+body.read-only #wardBtn,
+body.read-only #fogEditBtn,
+body.read-only #resetFogBtn,
+body.read-only .econ-edit{pointer-events:none;opacity:0.6}
+body.read-only .map-wrap{cursor:grab}
+
 /* ── AUTH ── */
 .auth-gate{position:fixed;inset:0;z-index:500;background:var(--void);display:flex;align-items:center;justify-content:center}
 .auth-gate.hidden{display:none}
