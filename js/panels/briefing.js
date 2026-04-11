@@ -3,7 +3,7 @@ import { LANE_COLORS, HERO_PORTRAITS, heroStatusColor } from '../data/heroes.js'
 import { esc, formatNum, formatShort } from '../utils.js';
 import { openHeroDetail } from './hero-detail.js';
 import { label } from '../labels.js';
-import { showModal } from '../ui/modal.js';
+import { showModal, closeModal } from '../ui/modal.js';
 
 let briefingVisible = true;
 let _onEnter = null;
@@ -245,7 +245,7 @@ function renderBriefing() {
             { value: 'gray', label: 'Gray — not started' },
           ]},
           { key: '_delete', label: '', type: 'action', text: 'Delete this item', action: () => {
-            import('../ui/modal.js').then(m => m.closeModal());
+            closeModal();
             STATE.intel[lane].items = STATE.intel[lane].items.filter(i => i.id !== id);
             saveLocal(); renderBriefing();
           }},
