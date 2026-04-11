@@ -220,7 +220,7 @@ export const STATE = {
       items: [
         { id:'ib1', text:'2.94M hands processed through ML pipeline', type:'green' },
         { id:'ib2', text:'K-means clustering identifying player types', type:'green' },
-        { id:'ib3', text:'Solver methodology defined — needs funding to build', type:'green' },
+        { id:'ib3', text:'Prof. Hu setting up on-prem compute', type:'orange' },
         { id:'ib4', text:'No external validation yet', type:'orange' },
         { id:'ib5', text:'No published paper — credibility not yet earned', type:'gray' },
       ]
