@@ -203,7 +203,7 @@ export const STATE = {
         { id:'im1', text:'Signal System v2 live — 152 signals, 85 strong', type:'green' },
         { id:'im2', text:'Villain reveal lifecycle working', type:'green' },
         { id:'im3', text:'UI framework stable', type:'green' },
-        { id:'im4', text:'Beta is 1 month out — onboarding + retention loops in progress', type:'orange' },
+        { id:'im4', text:'About to invite a small group of testers via a promoter', type:'orange' },
       ]
     },
     top: {
@@ -220,7 +220,7 @@ export const STATE = {
       items: [
         { id:'ib1', text:'2.94M hands processed through ML pipeline', type:'green' },
         { id:'ib2', text:'K-means clustering identifying player types', type:'green' },
-        { id:'ib3', text:'Prof. Hu setting up on-prem compute', type:'orange' },
+        { id:'ib3', text:'Needs fundraising to complete full solve', type:'orange' },
         { id:'ib4', text:'No external validation yet', type:'orange' },
         { id:'ib5', text:'No published paper — credibility not yet earned', type:'gray' },
       ]
