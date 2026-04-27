@@ -5,7 +5,7 @@ const _listeners = [];
 
 export function getUser() { return _user; }
 
-const EDITORS = ['jack@pokrshark.com'];
+const EDITORS = ['jack@pokrshark.com', 'yihchun@pokrshark.com'];
 export function isEditor() {
   return _user && EDITORS.includes(_user.email);
 }

@@ -103,6 +103,9 @@ DROP POLICY IF EXISTS "Authed users read treasury rules" ON treasury_vendor_rule
 DROP POLICY IF EXISTS "Jack writes treasury tx" ON treasury_transactions;
 DROP POLICY IF EXISTS "Jack writes treasury rev" ON treasury_revenue;
 DROP POLICY IF EXISTS "Jack writes treasury rules" ON treasury_vendor_rules;
+DROP POLICY IF EXISTS "Editors write treasury tx" ON treasury_transactions;
+DROP POLICY IF EXISTS "Editors write treasury rev" ON treasury_revenue;
+DROP POLICY IF EXISTS "Editors write treasury rules" ON treasury_vendor_rules;
 
 CREATE POLICY "Authed users read treasury tx"
   ON treasury_transactions FOR SELECT
@@ -116,17 +119,17 @@ CREATE POLICY "Authed users read treasury rules"
   ON treasury_vendor_rules FOR SELECT
   USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Jack writes treasury tx"
+CREATE POLICY "Editors write treasury tx"
   ON treasury_transactions FOR ALL
-  USING ((auth.jwt() ->> 'email') = 'jack@pokrshark.com')
-  WITH CHECK ((auth.jwt() ->> 'email') = 'jack@pokrshark.com');
+  USING ((auth.jwt() ->> 'email') IN ('jack@pokrshark.com', 'yihchun@pokrshark.com'))
+  WITH CHECK ((auth.jwt() ->> 'email') IN ('jack@pokrshark.com', 'yihchun@pokrshark.com'));
 
-CREATE POLICY "Jack writes treasury rev"
+CREATE POLICY "Editors write treasury rev"
   ON treasury_revenue FOR ALL
-  USING ((auth.jwt() ->> 'email') = 'jack@pokrshark.com')
-  WITH CHECK ((auth.jwt() ->> 'email') = 'jack@pokrshark.com');
+  USING ((auth.jwt() ->> 'email') IN ('jack@pokrshark.com', 'yihchun@pokrshark.com'))
+  WITH CHECK ((auth.jwt() ->> 'email') IN ('jack@pokrshark.com', 'yihchun@pokrshark.com'));
 
-CREATE POLICY "Jack writes treasury rules"
+CREATE POLICY "Editors write treasury rules"
   ON treasury_vendor_rules FOR ALL
-  USING ((auth.jwt() ->> 'email') = 'jack@pokrshark.com')
-  WITH CHECK ((auth.jwt() ->> 'email') = 'jack@pokrshark.com');
+  USING ((auth.jwt() ->> 'email') IN ('jack@pokrshark.com', 'yihchun@pokrshark.com'))
+  WITH CHECK ((auth.jwt() ->> 'email') IN ('jack@pokrshark.com', 'yihchun@pokrshark.com'));
