@@ -226,6 +226,9 @@ canvas#fogCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events
 .econ-row{display:flex;gap:16px}
 .econ-edit{cursor:pointer;border-bottom:1px dashed var(--border-hi);transition:color .15s}
 .econ-edit:hover{color:var(--text)!important}
+.econ-edit.auto{border-bottom-color:var(--radiant);position:relative;display:inline-flex;align-items:center;gap:5px}
+.econ-live-dot{width:6px;height:6px;border-radius:50%;background:var(--radiant);box-shadow:0 0 6px var(--radiant);animation:treasury-pulse 2s ease-in-out infinite}
+@keyframes treasury-pulse{0%,100%{opacity:.6}50%{opacity:1}}
 .shares-row{display:flex;align-items:center;gap:6px;font-size:11px}
 .shares-label{color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:1px}
 .shares-bar{width:80px;height:6px;background:var(--void);border-radius:3px;overflow:hidden;display:flex}
@@ -355,6 +358,127 @@ canvas#fogCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events
 .task-desc-edit:hover{color:var(--text2)}
 .task-add{width:100%;justify-content:center;font-size:11px;color:var(--text3)}
 .task-add:hover{color:var(--text);border-color:var(--border-hi)}
+
+/* ── TREASURY OVERLAY (full-screen) ── */
+.treasury-drawer{position:fixed;inset:0;z-index:200;background:var(--void);overflow:hidden;display:none;flex-direction:column;opacity:0;transition:opacity .25s ease}
+.treasury-drawer.open{display:flex;opacity:1}
+.treasury-header{display:flex;align-items:center;gap:24px;padding:14px 32px;border-bottom:2px solid var(--radiant);background:var(--surface);flex-shrink:0}
+.treasury-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:3px;color:var(--radiant);flex-shrink:0}
+.treasury-tabs{display:flex;gap:4px;flex:1}
+.treasury-tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;padding:8px 18px;cursor:pointer;transition:color .15s,border-color .15s}
+.treasury-tab:hover{color:var(--text)}
+.treasury-tab.active{color:var(--radiant);border-bottom-color:var(--radiant)}
+.treasury-close{font-size:20px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer}
+.treasury-close:hover{border-color:var(--dire);color:var(--dire)}
+.treasury-body{flex:1;overflow-y:auto;padding:24px 32px}
+.treasury-empty{color:var(--text3);font-size:13px;text-align:center;padding:80px 0}
+.treasury-error{color:var(--dire);font-size:13px;text-align:center;padding:80px 0}
+
+/* Treasury toolbar */
+.treasury-toolbar{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.treasury-subtabs{display:flex;gap:2px;border-bottom:1px solid var(--border)}
+.treasury-subtab{background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:8px 16px;cursor:pointer;transition:color .15s,border-color .15s}
+.treasury-subtab:hover{color:var(--text)}
+.treasury-subtab.active{color:var(--radiant);border-bottom-color:var(--radiant)}
+.treasury-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.treasury-input{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-size:12px;font-family:inherit;outline:none}
+.treasury-input:focus{border-color:var(--radiant)}
+.treasury-input[type="text"]{flex:1;min-width:240px}
+.treasury-add-btn{background:var(--radiant);color:#0a0a0a;border-color:var(--radiant);font-weight:700}
+.treasury-add-btn:hover{background:var(--radiant);filter:brightness(1.1)}
+.treasury-rules-header{font-size:11px;color:var(--text3);letter-spacing:.5px}
+
+/* Treasury table */
+.treasury-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:4px}
+.treasury-table{width:100%;border-collapse:collapse;font-size:12px}
+.treasury-table thead{background:var(--card);position:sticky;top:0;z-index:1}
+.treasury-table th{text-align:left;padding:10px 12px;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+.treasury-table td{padding:10px 12px;border-bottom:1px solid var(--border-soft, #1a1a1a);vertical-align:middle}
+.treasury-table tbody tr:hover{background:var(--card)}
+.treasury-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.treasury-table th.num{text-align:right}
+.treasury-table .treasury-desc{max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);font-family:var(--mono, monospace);font-size:11px}
+.treasury-table code{font-family:var(--mono, monospace);font-size:11px;color:var(--text)}
+.treasury-table tr.tr-needs-review{background:rgba(224,144,64,.05)}
+.treasury-table tr.tr-needs-review:hover{background:rgba(224,144,64,.10)}
+.treasury-empty-row{text-align:center;color:var(--text3);padding:40px 0 !important}
+.treasury-row-count{font-size:11px;color:var(--text3);padding:8px 4px;letter-spacing:.5px}
+
+/* Treasury pills */
+.treasury-cat-pill{display:inline-block;padding:2px 8px;border:1px solid;border-radius:10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.treasury-pill{display:inline-block;padding:1px 7px;border:1px solid var(--border);border-radius:10px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3)}
+.treasury-pill-custom{color:var(--gold);border-color:var(--gold)}
+.treasury-pill-reimburse{color:var(--orange);border-color:var(--orange)}
+.treasury-pill-primary{color:var(--radiant);border-color:var(--radiant)}
+.treasury-pill-personal{color:var(--text3);border-color:var(--text3)}
+.treasury-table tr.treasury-class-personal td{opacity:.55}
+.treasury-table tr.treasury-class-personal:hover td{opacity:1}
+.treasury-preview-summary{display:flex;gap:6px;align-items:center}
+
+.btn-mini{font-size:10px;padding:3px 9px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:3px;cursor:pointer;font-family:inherit;margin-right:4px}
+.btn-mini:hover{border-color:var(--radiant);color:var(--radiant)}
+
+/* Treasury import surfaces */
+.treasury-import-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.treasury-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px}
+.treasury-card h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:12px}
+.treasury-card-hint{font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:10px}
+.treasury-pdf-card-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.treasury-dropzone{border:2px dashed var(--border);border-radius:6px;padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.treasury-dropzone:hover,.treasury-dropzone.dragover{border-color:var(--radiant);background:rgba(74,157,122,.05)}
+.treasury-dropzone-icon{font-size:24px;color:var(--text3);margin-bottom:6px}
+.treasury-dropzone-hint{font-size:11px;color:var(--text3);margin-top:4px}
+.treasury-file-log{margin-top:12px;display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto}
+.treasury-file-row{display:flex;align-items:center;gap:8px;font-size:11px;padding:4px 6px;background:var(--card);border-radius:3px}
+.treasury-file-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.treasury-file-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono,monospace)}
+.treasury-file-msg{color:var(--text3);font-size:10px}
+.treasury-csv-paste{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:4px;font-family:var(--mono,monospace);font-size:11px;outline:none;resize:vertical;margin-bottom:10px}
+.treasury-csv-paste:focus{border-color:var(--radiant)}
+.treasury-preview-card{margin-bottom:16px}
+.treasury-preview-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.treasury-preview-head h3{margin:0}
+.treasury-preview-dropped{font-size:11px;color:var(--orange)}
+.treasury-preview-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.treasury-seed-card{margin-top:12px}
+
+/* Treasury dashboard */
+.treasury-summary-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.treasury-summary-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px}
+.treasury-summary-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:6px}
+.treasury-summary-value{font-size:22px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;margin-bottom:4px}
+.treasury-summary-sub{font-size:11px;color:var(--text3)}
+.treasury-tone-pos{color:var(--radiant)}
+.treasury-tone-neg{color:var(--dire)}
+.treasury-tone-warn{color:var(--orange)}
+.treasury-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.treasury-chart-empty{font-size:12px;color:var(--text3);text-align:center;padding:24px 0}
+.treasury-hbar{display:grid;grid-template-columns:160px 1fr 100px;gap:8px;align-items:center;font-size:11px;padding:3px 0}
+.treasury-hbar-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)}
+.treasury-hbar-track{background:var(--card);border-radius:3px;height:16px;overflow:hidden}
+.treasury-hbar-fill{display:block;height:100%;border-radius:3px;transition:width .25s}
+.treasury-hbar-value{text-align:right;font-variant-numeric:tabular-nums;color:var(--text)}
+
+/* Treasury P&L */
+.treasury-pnl-toolbar{display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.treasury-pnl-field{display:flex;align-items:center;gap:6px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3)}
+.treasury-pnl-years{display:flex;gap:2px;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2px;margin-right:6px}
+.treasury-pnl-year{background:none;border:none;color:var(--text3);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:6px 12px;cursor:pointer;border-radius:3px;font-family:inherit;transition:background .15s,color .15s}
+.treasury-pnl-year:hover{color:var(--text)}
+.treasury-pnl-year.active{background:var(--radiant);color:#0a0a0a}
+.treasury-pnl-rev-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.treasury-pnl-body{margin-top:8px}
+.treasury-pnl-title{font-size:14px;font-weight:700;color:var(--text);text-align:center;margin-bottom:4px;text-transform:uppercase;letter-spacing:2px}
+.treasury-pnl-subtitle{font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px}
+.treasury-pnl-table{border:1px solid var(--border);border-radius:4px;overflow-x:auto;background:var(--surface)}
+.treasury-pnl-row{display:flex;align-items:center;font-size:12px;padding:6px 12px;border-bottom:1px solid var(--border-soft,#1a1a1a);gap:0}
+.treasury-pnl-row:last-child{border-bottom:none}
+.treasury-pnl-headrow{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);background:var(--card);font-weight:600}
+.treasury-pnl-section{padding:10px 12px;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--radiant);background:var(--card);border-bottom:1px solid var(--border);font-weight:700}
+.treasury-pnl-totalrow{background:var(--card);border-top:1px solid var(--border-hi,var(--border));font-weight:700}
+.treasury-pnl-label{flex:1;min-width:200px;color:var(--text2);padding-right:12px}
+.treasury-pnl-col{width:var(--treasury-col,90px);text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0;padding:0 4px}
+.treasury-pnl-col.neg{color:var(--orange)}
 
 /* ── BRIEFING OVERLAY ── */
 .briefing-overlay{position:fixed;inset:0;z-index:200;background:var(--void);overflow-y:auto;transition:opacity .4s ease}

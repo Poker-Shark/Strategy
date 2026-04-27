@@ -42,9 +42,12 @@ export function showModal({ title, fields = [], onSave, onCancel }) {
     fields.forEach(f => {
       const el = overlay.querySelector(`[data-field="${f.key}"]`);
       if (!el) return;
-      const val = f.type === 'number' ? (parseInt(el.value) || 0) : el.value;
+      let val;
+      if (f.type === 'number') val = parseFloat(el.value);
+      else if (f.type === 'checkbox') val = el.checked;
+      else val = el.value;
       values[f.key] = val;
-      if (f.required && !el.value.trim()) {
+      if (f.required && f.type !== 'checkbox' && !String(el.value).trim()) {
         el.style.borderColor = 'var(--dire)';
         valid = false;
       }
@@ -118,7 +121,18 @@ function renderField(f) {
   }
   if (f.type === 'number') {
     return `<label class="mf-label">${esc(f.label || f.key)}
-      <input class="mf-input" type="number" data-field="${f.key}" value="${val}" ${f.min !== undefined ? `min="${f.min}"` : ''} ${f.max !== undefined ? `max="${f.max}"` : ''}>
+      <input class="mf-input" type="number" step="${f.step || 'any'}" data-field="${f.key}" value="${val}" ${f.min !== undefined ? `min="${f.min}"` : ''} ${f.max !== undefined ? `max="${f.max}"` : ''}>
+    </label>`;
+  }
+  if (f.type === 'date') {
+    return `<label class="mf-label">${esc(f.label || f.key)}
+      <input class="mf-input" type="date" data-field="${f.key}" value="${esc(String(val))}">
+    </label>`;
+  }
+  if (f.type === 'checkbox') {
+    return `<label class="mf-label" style="flex-direction:row;align-items:center;gap:8px">
+      <input type="checkbox" data-field="${f.key}" ${val ? 'checked' : ''}>
+      <span>${esc(f.label || f.key)}</span>
     </label>`;
   }
   if (f.type === 'action') {

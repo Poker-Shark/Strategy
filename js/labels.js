@@ -17,6 +17,7 @@ export const LABELS = {
   briefingBtn:    { biz: 'Summary',          dota: 'Briefing' },
   shopBtn:        { biz: 'Investments',      dota: 'Shop' },
   taskBtn:        { biz: 'Tasks',            dota: 'Tasks' },
+  treasuryBtn:    { biz: 'Books',            dota: 'Treasury' },
   fogBtn:         { biz: 'Uncertainty',      dota: 'Fog' },
   fogEditBtn:     { biz: 'Edit Uncertainty', dota: 'Fog Edit' },
   wardBtn:        { biz: 'Place Sensor',     dota: 'Place Ward' },
@@ -53,6 +54,9 @@ export const LABELS = {
 
   // Shop
   shopTitle:      { biz: 'INVESTMENTS — Strategic Assets', dota: 'SHOP — Strategic Investments' },
+
+  // Treasury
+  treasuryTitle:  { biz: 'BOOKS — P&L, Receipts, Burn', dota: 'TREASURY — Gold, Bounties, Burn' },
 
   // Hero detail
   abilities:      { biz: 'Capabilities', dota: 'Abilities' },

@@ -10,6 +10,8 @@ import { renderIntelPanel } from './panels/intel.js';
 import { renderEconomy } from './panels/economy.js';
 import { toggleShop } from './panels/shop.js';
 import { toggleTasks, closeTasks, setTaskUpdateCallback } from './panels/tasks.js';
+import { toggleTreasury, closeTreasury } from './panels/treasury.js';
+import { loadTreasury, onTreasuryChange } from './treasury/state.js';
 import { openHeroDetail, closeHeroDetail } from './panels/hero-detail.js';
 import { initTooltip } from './interactions/tooltip.js';
 import { showBriefing, hideBriefing, toggleBriefing, isBriefingVisible } from './panels/briefing.js';
@@ -304,6 +306,7 @@ function onEnterWarRoom(targetLane) {
 document.getElementById('briefingBtn').addEventListener('click', () => toggleBriefing(onEnterWarRoom, fullRefresh));
 document.getElementById('shopBtn').addEventListener('click', () => toggleShop());
 document.getElementById('taskBtn').addEventListener('click', () => { closeTasks(); toggleTasks(); });
+document.getElementById('treasuryBtn').addEventListener('click', () => { closeTreasury(); toggleTreasury(); });
 document.getElementById('fogEditBtn').addEventListener('click', toggleFogEdit);
 document.getElementById('spawnBtn').addEventListener('click', () => {
   showModal({
@@ -352,6 +355,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'g') toggleBriefing(onEnterWarRoom, fullRefresh);
   if (e.key === 'b') toggleShop();
   if (e.key === 't') toggleTasks();
+  if (e.key === 'v') toggleTreasury();
   if (e.key === 'e') toggleFogEdit();
   if (e.key === 'm') document.getElementById('spawnBtn').click();
   if (e.key === 'Tab') { e.preventDefault(); STATE.panelCollapsed = !STATE.panelCollapsed; renderDraftPanel(drawDynamic); saveLocal(); }
@@ -378,7 +382,7 @@ function updateLabels() {
   // Phase status
   document.getElementById('phaseStatus').textContent = label('status_' + STATE.phase);
   // Bottom bar buttons
-  const btnLabels = { briefingBtn:'briefingBtn', shopBtn:'shopBtn', taskBtn:'taskBtn', spawnBtn:'spawnBtn', fogBtn:'fogBtn', fogEditBtn:'fogEditBtn', wardBtn:'wardBtn', resetFogBtn:'resetFogBtn' };
+  const btnLabels = { briefingBtn:'briefingBtn', shopBtn:'shopBtn', taskBtn:'taskBtn', treasuryBtn:'treasuryBtn', spawnBtn:'spawnBtn', fogBtn:'fogBtn', fogEditBtn:'fogEditBtn', wardBtn:'wardBtn', resetFogBtn:'resetFogBtn' };
   for (const [id, key] of Object.entries(btnLabels)) {
     const el = document.getElementById(id);
     if (el) { const keySpan = el.querySelector('.key'); el.textContent = label(key) + ' '; if (keySpan) el.appendChild(keySpan); }
@@ -462,7 +466,12 @@ onAuthChange(async (user) => {
     } finally {
       suppressSync(false);
     }
+    // Background-load Treasury so the Economy widget can show live runway.
+    loadTreasury().catch(err => console.warn('Treasury preload failed:', err.message));
   } else {
     showGate();
   }
 });
+
+// Re-render Economy whenever Treasury data changes — live monthly burn / runway.
+onTreasuryChange(() => renderEconomy());

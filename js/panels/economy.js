@@ -2,6 +2,25 @@ import { STATE, saveLocal } from '../state.js';
 import { formatNum, formatShort } from '../utils.js';
 import { showModal } from '../ui/modal.js';
 import { label } from '../labels.js';
+import { getTransactions, isLoaded as treasuryLoaded } from '../treasury/state.js';
+
+// Trailing-90-day average monthly burn from Treasury, or null if no data.
+function computeMonthlyBurn() {
+  if (!treasuryLoaded()) return null;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 90);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+  let total = 0;
+  let any = false;
+  for (const t of getTransactions()) {
+    if (t.type !== 'purchase') continue;
+    if (t.date < cutoffStr) continue;
+    total += Number(t.amount) * (Number(t.business_pct ?? 100) / 100);
+    any = true;
+  }
+  return any ? total / 3 : null;
+}
 
 export function renderEconomy() {
   const e = STATE.economy;
@@ -12,10 +31,22 @@ export function renderEconomy() {
   const pctReserved = (e.sharesReserved / e.sharesTotal * 100).toFixed(0);
   const pctRemaining = (e.sharesRemaining / e.sharesTotal * 100).toFixed(0);
 
+  const burn = computeMonthlyBurn();
+  const autoRunway = burn && burn > 0 && e.gold > 0
+    ? `${(e.gold / burn).toFixed(1)} mo`
+    : null;
+  const runwayDisplay = autoRunway || e.runway;
+  const runwayTitle = autoRunway
+    ? `Auto: $${burn.toFixed(0)}/mo burn (trailing 90 days) · click to override`
+    : 'Click to edit';
+
   el.innerHTML = `
     <div class="econ-row">
       <div class="metric"><span>${label('gold')}</span><span class="val gold econ-edit" data-field="gold">$${formatNum(e.gold)}</span></div>
-      <div class="metric"><span>${label('runway')}</span><span class="val green econ-edit" data-field="runway">${e.runway}</span></div>
+      <div class="metric" title="${runwayTitle}">
+        <span>${label('runway')}</span>
+        <span class="val green econ-edit ${autoRunway ? 'auto' : ''}" data-field="runway">${runwayDisplay}${autoRunway ? '<span class="econ-live-dot"></span>' : ''}</span>
+      </div>
     </div>
     <div class="shares-row" title="Shares: ${formatNum(e.sharesRemaining)} remaining / ${formatNum(e.sharesTotal)} total">
       <span class="shares-label">${label('shares')}</span>
