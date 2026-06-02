@@ -15,6 +15,7 @@ export const MILESTONE_STATUS  = ['done', 'in_progress', 'planned'];
 export const MEMBER_STATUS      = ['active', 'at_risk', 'vacant'];
 export const COMPETITOR_LEVEL   = ['watch', 'contender', 'dominant'];
 export const BET_STATUS         = ['planned', 'active', 'done'];
+export const OPPORTUNITY_STATUS = ['available', 'captured'];
 
 // Legacy game value → business value mappings.
 const MEMBER_STATUS_MAP    = { active: 'active', warning: 'at_risk', danger: 'at_risk', empty: 'vacant' };
@@ -116,6 +117,17 @@ export function normalizeBusinessState(state = STATE) {
     });
   }
 
+  // Opportunities: pipeline plays (the jungle camps). No game loot — a captured
+  // opportunity is a status change, not a cash reward.
+  const opportunities = (state.neutralCamps || []).map(c => ({
+    id: c.id,
+    name: c.name,
+    description: c.desc || '',
+    workstream: c.lane || '',
+    side: c.lane === 'dire' ? 'competitor' : 'ours',
+    status: c.status === 'cleared' ? 'captured' : 'available',
+  }));
+
   // Bets: strategic investments (the item shop).
   const bets = (state.shop || []).map(s => ({
     id: s.id,
@@ -126,7 +138,7 @@ export function normalizeBusinessState(state = STATE) {
     owner: s.holder || '',
   }));
 
-  return { workstreams, milestones, team, deployments, competitors, bets };
+  return { workstreams, milestones, team, deployments, competitors, opportunities, bets };
 }
 
 // ── Validation ──
@@ -181,6 +193,12 @@ export function validateBusinessState(model) {
   for (const c of model.competitors || []) {
     if (!c.name) add('competitor', c.id, 'name', 'empty name');
     if (!inEnum(c.level, COMPETITOR_LEVEL)) add('competitor', c.id, 'level', `invalid level "${c.level}"`);
+  }
+
+  requireUnique(model.opportunities || [], 'opportunity');
+  for (const o of model.opportunities || []) {
+    if (!o.name) add('opportunity', o.id, 'name', 'empty name');
+    if (!inEnum(o.status, OPPORTUNITY_STATUS)) add('opportunity', o.id, 'status', `invalid status "${o.status}"`);
   }
 
   requireUnique(model.bets || [], 'bet');
@@ -250,6 +268,11 @@ export function businessSummary(model) {
     bets: {
       active: count(model.bets || [], b => b.status === 'active'),
       done: count(model.bets || [], b => b.status === 'done'),
+    },
+    opportunities: {
+      total: (model.opportunities || []).length,
+      available: count(model.opportunities || [], o => o.status === 'available'),
+      captured: count(model.opportunities || [], o => o.status === 'captured'),
     },
   };
 }

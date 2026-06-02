@@ -26,6 +26,12 @@ function fixture() {
     dire: [{ id: 'd1', name: 'BigCo', threat: 90, desc: 'incumbent' }],
     roshan: { name: 'GTO Wizard', desc: 'boss' },
     shop: [{ id: 's1', name: 'Solver', desc: '', status: 'building', progress: 45, holder: 'a' }],
+    neutralCamps: [
+      // Legacy game loot fields (gold/xp) are present but must be ignored.
+      { id: 'nc1', name: 'Podcast', desc: 'reach', lane: 'top', status: 'stacked', gold: 400, xp: 1 },
+      { id: 'nc2', name: 'Conference', desc: 'cred', lane: 'bot', status: 'cleared', gold: 200, xp: 4 },
+      { id: 'nc9', name: 'Power Users', desc: 'hard', lane: 'dire', status: 'stacked' },
+    ],
   };
 }
 
@@ -58,6 +64,16 @@ describe('normalizeBusinessState', () => {
 
   it('maps shop items to bets', () => {
     expect(m.bets[0]).toMatchObject({ id: 's1', name: 'Solver', status: 'active', progress: 45, owner: 'a' });
+  });
+
+  it('maps camps to opportunities with NO game loot (gold/xp dropped)', () => {
+    expect(m.opportunities).toHaveLength(3);
+    const podcast = m.opportunities.find(o => o.id === 'nc1');
+    expect(podcast).toEqual({ id: 'nc1', name: 'Podcast', description: 'reach', workstream: 'top', side: 'ours', status: 'available' });
+    expect('gold' in podcast).toBe(false);
+    expect('xp' in podcast).toBe(false);
+    expect(m.opportunities.find(o => o.id === 'nc2').status).toBe('captured'); // cleared → captured
+    expect(m.opportunities.find(o => o.id === 'nc9').side).toBe('competitor');  // dire lane
   });
 
   it('records deployments from hero positions', () => {
@@ -131,6 +147,12 @@ describe('validateBusinessState — each rule fails when violated', () => {
     m.bets[0].progress = 300;
     expect(validateBusinessState(m).issues).toContainEqual(expect.objectContaining({ entity: 'bet', field: 'progress' }));
   });
+
+  it('flags an invalid opportunity status', () => {
+    const m = base();
+    m.opportunities[0].status = 'farming';
+    expect(validateBusinessState(m).issues).toContainEqual(expect.objectContaining({ entity: 'opportunity', field: 'status' }));
+  });
 });
 
 describe('selectors', () => {
@@ -163,6 +185,9 @@ describe('businessSummary', () => {
   it('counts workstreams and bets', () => {
     expect(s.workstreams.total).toBe(2);
     expect(s.bets).toMatchObject({ active: 1, done: 0 });
+  });
+  it('rolls up opportunities', () => {
+    expect(s.opportunities).toMatchObject({ total: 3, available: 2, captured: 1 });
   });
 });
 

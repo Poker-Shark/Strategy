@@ -103,7 +103,7 @@ export function drawSvgLayer(svgRoot, w, h, state, camera) {
     icon.textContent = isCleared ? '✓' : '◆';
     g.appendChild(icon);
     g.dataset.ttTitle = camp.name; g.dataset.ttDesc = camp.desc;
-    g.dataset.ttStatus = camp.status + (camp.gold ? ' — $'+camp.gold : '');
+    g.dataset.ttStatus = camp.status;
     g.dataset.campId = camp.id;
     g.style.cursor = 'grab';
     svgRoot.appendChild(g);

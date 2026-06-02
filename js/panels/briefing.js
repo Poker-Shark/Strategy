@@ -206,6 +206,7 @@ function renderBriefing() {
           <div class="bsc-item"><span class="bsc-val">${summary.team.totalHours}</span><span class="bsc-label">team hrs/wk</span></div>
           <div class="bsc-item"><span class="bsc-val">${summary.workstreams.active}/${summary.workstreams.total}</span><span class="bsc-label">workstreams active${summary.workstreams.dark ? ` · ${summary.workstreams.dark} dark` : ''}</span></div>
           <div class="bsc-item"><span class="bsc-val">${summary.competitors.top ? esc(summary.competitors.top.name) : '—'}</span><span class="bsc-label">top competitor${summary.competitors.top ? ' · ' + esc(summary.competitors.top.level) : ''}</span></div>
+          <div class="bsc-item"><span class="bsc-val">${summary.opportunities.available}</span><span class="bsc-label">open opportunities · ${summary.opportunities.captured} captured</span></div>
           <div class="bsc-item ${health.ok ? '' : 'bsc-warn'}"><span class="bsc-val">${health.ok ? '✓' : health.issues.length}</span><span class="bsc-label">${health.ok ? 'board data is consistent' : 'data issues — open console'}</span></div>
         </div>
       </div>
