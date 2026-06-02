@@ -411,6 +411,10 @@ canvas#fogCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events
 .treasury-pill-reimburse{color:var(--orange);border-color:var(--orange)}
 .treasury-pill-primary{color:var(--radiant);border-color:var(--radiant)}
 .treasury-pill-personal{color:var(--text3);border-color:var(--text3)}
+.treasury-receipt-link{text-decoration:none;font-size:14px;opacity:.9}
+.treasury-receipt-link:hover{opacity:1}
+.treasury-receipt-missing{color:var(--orange);font-weight:700;cursor:default}
+.treasury-receipt-na{color:var(--text3)}
 .treasury-table tr.treasury-class-personal td{opacity:.55}
 .treasury-table tr.treasury-class-personal:hover td{opacity:1}
 .treasury-preview-summary{display:flex;gap:6px;align-items:center}

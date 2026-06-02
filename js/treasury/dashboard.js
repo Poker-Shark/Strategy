@@ -1,6 +1,7 @@
 import { esc } from '../utils.js';
 import { CATEGORIES, CARD_DEFAULTS, fmtMoney } from './constants.js';
 import { getTransactions, getRevenue } from './state.js';
+import { receiptCoverage } from './receipts.js';
 
 export function renderDashboard(container) {
   const txs = getTransactions();
@@ -8,20 +9,23 @@ export function renderDashboard(container) {
   const revenue = getRevenue();
 
   let totalExpenses = 0;
-  let uncategorized = 0;
   for (const t of purchases) {
     totalExpenses += Number(t.amount) * (Number(t.business_pct ?? 100) / 100);
-    if (!t.category || t.category === 'other_expense') uncategorized++;
   }
   const totalRevenue = revenue.reduce((s, r) => s + Number(r.amount || 0), 0);
   const netIncome = totalRevenue - totalExpenses;
+  const receipts = receiptCoverage(txs);
 
   container.innerHTML = `
     <div class="treasury-summary-cards">
       ${summaryCard('Total Revenue', fmtMoney(totalRevenue), `${revenue.length} entries`, 'pos')}
       ${summaryCard('Total Expenses', fmtMoney(totalExpenses), `${purchases.length} purchases`, 'neg')}
       ${summaryCard('Net Income', formatSigned(netIncome), 'Poker Shark LLC', netIncome >= 0 ? 'pos' : 'neg')}
-      ${summaryCard('Needs Review', String(uncategorized), 'uncategorized purchases', uncategorized > 0 ? 'warn' : '')}
+      ${summaryCard('Receipt Coverage', `${receipts.pct}%`,
+        receipts.missing > 0
+          ? `${receipts.missing} missing — ${fmtMoney(receipts.missingAmount)}`
+          : 'all backed up',
+        receipts.missing > 0 ? 'warn' : 'pos')}
     </div>
     <div class="treasury-chart-grid">
       <div class="treasury-card"><h3>Monthly Expenses</h3><div id="treasuryChartMonthly"></div></div>

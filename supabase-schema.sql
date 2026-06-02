@@ -72,6 +72,10 @@ CREATE INDEX IF NOT EXISTS idx_treasury_tx_date ON treasury_transactions(date DE
 CREATE INDEX IF NOT EXISTS idx_treasury_tx_category ON treasury_transactions(category);
 CREATE INDEX IF NOT EXISTS idx_treasury_tx_card ON treasury_transactions(card);
 
+-- Receipt tracking: link to the stored receipt doc (Box / Google Drive).
+-- Safe to re-run on an existing table.
+ALTER TABLE treasury_transactions ADD COLUMN IF NOT EXISTS receipt_url TEXT;
+
 CREATE TABLE IF NOT EXISTS treasury_revenue (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   date DATE NOT NULL,
