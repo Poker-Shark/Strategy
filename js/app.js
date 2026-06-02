@@ -312,13 +312,13 @@ document.getElementById('spawnBtn').addEventListener('click', () => {
   showModal({
     title: label('spawnBtn'),
     fields: [
-      { key: 'type', label: 'Type', type: 'select', value: 'basic', options: [
-        { value: 'basic', label: 'Basic — Paying Users' },
-        { value: 'wizard', label: 'Wizard — Community Leaders / Recruiters' },
-        { value: 'super', label: 'Super — Sponsors / Influencers / Partners' },
+      { key: 'type', label: 'Segment tier', type: 'select', value: 'basic', options: [
+        { value: 'basic', label: 'Users — paying / active users' },
+        { value: 'wizard', label: 'Advocates — community leaders / recruiters' },
+        { value: 'super', label: 'Partners — sponsors / influencers' },
       ]},
       { key: 'count', label: 'How many?', type: 'number', value: 1, min: 0 },
-      { key: 'name', label: 'Name (super minions only)', type: 'text' },
+      { key: 'name', label: 'Name (partners only)', type: 'text' },
       { key: 'label', label: 'Label', type: 'text', value: 'Paying Users' },
       { key: 'lane', label: 'Lane', type: 'select', value: 'mid', options: [
         { value: 'mid', label: (STATE.laneNames||{}).mid || 'Product' },
