@@ -21,6 +21,7 @@ export const OPPORTUNITY_STATUS = ['available', 'captured'];
 const MEMBER_STATUS_MAP    = { active: 'active', warning: 'at_risk', danger: 'at_risk', empty: 'vacant' };
 const MILESTONE_STATUS_MAP = { achieved: 'done', next: 'in_progress', locked: 'planned' };
 const BET_STATUS_MAP       = { building: 'active', purchased: 'done', planned: 'planned' };
+const OPPORTUNITY_STATUS_MAP = { cleared: 'captured', stacked: 'available' };
 
 // Lanes get a business name from STATE.laneNames; these are the fallbacks for
 // lanes that exist on the map but aren't in laneNames (river, enemy side).
@@ -125,7 +126,7 @@ export function normalizeBusinessState(state = STATE) {
     description: c.desc || '',
     workstream: c.lane || '',
     side: c.lane === 'dire' ? 'competitor' : 'ours',
-    status: c.status === 'cleared' ? 'captured' : 'available',
+    status: OPPORTUNITY_STATUS_MAP[c.status] || 'available',
   }));
 
   // Bets: strategic investments (the item shop).

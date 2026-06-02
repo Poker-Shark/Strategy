@@ -136,24 +136,23 @@ export const STATE = {
     sharesRemaining: 2000000,
   },
 
-  // Neutral camps — opportunities to clear for gold/XP
-  // Positioned logically near their relevant lane
+  // Opportunities — pipeline plays, positioned near their relevant lane
   neutralCamps: [
     // Product lane jungle (mid) — user acquisition plays
-    { id:'nc1', name:'Twitch Collab', desc:'Partner with a poker streamer for a live demo. Product exposure to engaged audience.', x:35, y:55, status:'stacked', type:'medium', lane:'mid', gold:500, xp:2 },
-    { id:'nc2', name:'Mobile-Only Players', desc:'Phone players who can\'t use desktop solvers. Build mobile-first features to capture.', x:42, y:65, status:'stacked', type:'medium', lane:'mid', gold:800, xp:3 },
+    { id:'nc1', name:'Twitch Collab', desc:'Partner with a poker streamer for a live demo. Product exposure to engaged audience.', x:35, y:55, status:'stacked', type:'medium', lane:'mid' },
+    { id:'nc2', name:'Mobile-Only Players', desc:'Phone players who can\'t use desktop solvers. Build mobile-first features to capture.', x:42, y:65, status:'stacked', type:'medium', lane:'mid' },
     // Ops lane jungle (top) — growth & marketing plays
-    { id:'nc3', name:'Influencer Partnership', desc:'Secure a poker content creator to promote the product. Organic growth accelerator.', x:14, y:45, status:'stacked', type:'medium', lane:'top', gold:1000, xp:2 },
-    { id:'nc4', name:'Home Game Casuals', desc:'Recreational players in weekly home games. Easy community to build around.', x:12, y:60, status:'stacked', type:'small', lane:'top', gold:300, xp:1 },
-    { id:'nc5', name:'Podcast Guest Spot', desc:'Appear on a poker podcast. Low cost, high credibility, drives sign-ups.', x:20, y:40, status:'stacked', type:'small', lane:'top', gold:400, xp:1 },
+    { id:'nc3', name:'Influencer Partnership', desc:'Secure a poker content creator to promote the product. Organic growth accelerator.', x:14, y:45, status:'stacked', type:'medium', lane:'top' },
+    { id:'nc4', name:'Home Game Casuals', desc:'Recreational players in weekly home games. Easy community to build around.', x:12, y:60, status:'stacked', type:'small', lane:'top' },
+    { id:'nc5', name:'Podcast Guest Spot', desc:'Appear on a poker podcast. Low cost, high credibility, drives sign-ups.', x:20, y:40, status:'stacked', type:'small', lane:'top' },
     // Solver lane jungle (bot) — credibility & academic plays
-    { id:'nc6', name:'Conference Talk', desc:'Present solver methodology at a poker/AI conference. Major credibility boost.', x:40, y:82, status:'stacked', type:'medium', lane:'bot', gold:200, xp:4 },
-    { id:'nc7', name:'Chart Memorizers', desc:'Players who memorize charts but don\'t understand why. Convert with signal-based intuition.', x:50, y:78, status:'stacked', type:'small', lane:'bot', gold:600, xp:2 },
-    { id:'nc8', name:'Academic Paper Review', desc:'Get methodology peer-reviewed. Unlocks citations, trust, and industry respect.', x:28, y:88, status:'stacked', type:'medium', lane:'bot', gold:100, xp:5 },
+    { id:'nc6', name:'Conference Talk', desc:'Present solver methodology at a poker/AI conference. Major credibility boost.', x:40, y:82, status:'stacked', type:'medium', lane:'bot' },
+    { id:'nc7', name:'Chart Memorizers', desc:'Players who memorize charts but don\'t understand why. Convert with signal-based intuition.', x:50, y:78, status:'stacked', type:'small', lane:'bot' },
+    { id:'nc8', name:'Academic Paper Review', desc:'Get methodology peer-reviewed. Unlocks citations, trust, and industry respect.', x:28, y:88, status:'stacked', type:'medium', lane:'bot' },
     // Dire jungle (enemy side, in fog, harder segments)
-    { id:'nc9', name:'High-Stakes Grinders', desc:'Deep GTO Wizard users. Hard to convert without superior solver.', x:72, y:28, status:'stacked', type:'medium', lane:'dire', gold:2000, xp:3 },
-    { id:'nc10', name:'Solver Power Users', desc:'Run their own PioSolver sims. Need proof our approach is better.', x:65, y:18, status:'stacked', type:'small', lane:'dire', gold:1500, xp:2 },
-    { id:'nc11', name:'Pro Coaching Clients', desc:'$200+/hr 1-on-1 coaching clients. Different value prop entirely.', x:80, y:35, status:'stacked', type:'small', lane:'dire', gold:3000, xp:1 },
+    { id:'nc9', name:'High-Stakes Grinders', desc:'Deep GTO Wizard users. Hard to convert without superior solver.', x:72, y:28, status:'stacked', type:'medium', lane:'dire' },
+    { id:'nc10', name:'Solver Power Users', desc:'Run their own PioSolver sims. Need proof our approach is better.', x:65, y:18, status:'stacked', type:'small', lane:'dire' },
+    { id:'nc11', name:'Pro Coaching Clients', desc:'$200+/hr 1-on-1 coaching clients. Different value prop entirely.', x:80, y:35, status:'stacked', type:'small', lane:'dire' },
   ],
 
   // Roshan = GTO Wizard (the raid boss)
