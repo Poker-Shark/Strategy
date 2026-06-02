@@ -14,13 +14,14 @@ export const WORKSTREAM_STATUS = ['active', 'planned', 'done', 'dark'];
 export const MILESTONE_STATUS  = ['done', 'in_progress', 'planned'];
 export const MEMBER_STATUS      = ['active', 'at_risk', 'vacant'];
 export const COMPETITOR_LEVEL   = ['watch', 'contender', 'dominant'];
-export const BET_STATUS         = ['planned', 'active', 'done'];
+export const BET_STATUS         = ['planned', 'active', 'done', 'at_risk'];
 export const OPPORTUNITY_STATUS = ['available', 'captured'];
 
 // Legacy game value → business value mappings.
 const MEMBER_STATUS_MAP    = { active: 'active', warning: 'at_risk', danger: 'at_risk', empty: 'vacant' };
 const MILESTONE_STATUS_MAP = { achieved: 'done', next: 'in_progress', locked: 'planned' };
-const BET_STATUS_MAP       = { building: 'active', purchased: 'done', planned: 'planned' };
+const BET_STATUS_MAP       = { available: 'planned', building: 'active', purchased: 'done', stolen: 'at_risk', planned: 'planned' };
+const STAGE_STATUS_MAP     = { locked: 'planned', building: 'active', done: 'done' };
 const OPPORTUNITY_STATUS_MAP = { cleared: 'captured', stacked: 'available' };
 
 // Lanes get a business name from STATE.laneNames; these are the fallbacks for
@@ -129,14 +130,23 @@ export function normalizeBusinessState(state = STATE) {
     status: OPPORTUNITY_STATUS_MAP[c.status] || 'available',
   }));
 
-  // Bets: strategic investments (the item shop).
+  // Bets: strategic investments (the item shop). Components become stages of
+  // the investment; "stolen" (the Dota drop mechanic) becomes "at_risk".
   const bets = (state.shop || []).map(s => ({
     id: s.id,
     name: s.name,
+    subtitle: s.subtitle || '',
     description: s.desc || '',
+    rationale: s.effect || '',
     status: BET_STATUS_MAP[s.status] || 'planned',
     progress: Number(s.progress) || 0,
     owner: s.holder || '',
+    stages: (s.components || []).map(c => ({
+      name: c.name,
+      description: c.desc || '',
+      status: STAGE_STATUS_MAP[c.status] || 'planned',
+      progress: Number(c.progress) || 0,
+    })),
   }));
 
   return { workstreams, milestones, team, deployments, competitors, opportunities, bets };
@@ -207,6 +217,9 @@ export function validateBusinessState(model) {
     if (!b.name) add('bet', b.id, 'name', 'empty name');
     if (!inEnum(b.status, BET_STATUS)) add('bet', b.id, 'status', `invalid status "${b.status}"`);
     if (!inBounds(Number(b.progress))) add('bet', b.id, 'progress', 'progress out of 0-100');
+    for (const st of b.stages || []) {
+      if (!inBounds(Number(st.progress))) add('bet', b.id, 'stage.progress', `stage "${st.name}" progress out of 0-100`);
+    }
   }
 
   for (const d of model.deployments || []) {

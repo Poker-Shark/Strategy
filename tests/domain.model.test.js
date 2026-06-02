@@ -25,7 +25,14 @@ function fixture() {
     },
     dire: [{ id: 'd1', name: 'BigCo', threat: 90, desc: 'incumbent' }],
     roshan: { name: 'GTO Wizard', desc: 'boss' },
-    shop: [{ id: 's1', name: 'Solver', desc: '', status: 'building', progress: 45, holder: 'a' }],
+    shop: [
+      { id: 's1', name: 'Solver', subtitle: 'core IP', desc: 'the engine', effect: 'credibility', status: 'building', progress: 45, holder: 'a',
+        components: [
+          { name: 'Sacred Relic', desc: 'engine', status: 'building', progress: 60 },
+          { name: 'Demon Edge', desc: 'v2', status: 'locked', progress: 0 },
+        ] },
+      { id: 's2', name: 'Partnership', desc: 'ken', status: 'stolen', progress: 100, holder: 'a', components: [] },
+    ],
     neutralCamps: [
       // Legacy game loot fields (gold/xp) are present but must be ignored.
       { id: 'nc1', name: 'Podcast', desc: 'reach', lane: 'top', status: 'stacked', gold: 400, xp: 1 },
@@ -62,8 +69,18 @@ describe('normalizeBusinessState', () => {
     expect(m.competitors.find(c => c.id === 'roshan')).toMatchObject({ level: 'dominant', name: 'GTO Wizard' });
   });
 
-  it('maps shop items to bets', () => {
-    expect(m.bets[0]).toMatchObject({ id: 's1', name: 'Solver', status: 'active', progress: 45, owner: 'a' });
+  it('maps shop items to bets with business statuses and stages', () => {
+    expect(m.bets[0]).toMatchObject({
+      id: 's1', name: 'Solver', subtitle: 'core IP', rationale: 'credibility',
+      status: 'active', progress: 45, owner: 'a',
+    });
+    // components → stages, with mapped statuses (building→active, locked→planned)
+    expect(m.bets[0].stages).toEqual([
+      { name: 'Sacred Relic', description: 'engine', status: 'active', progress: 60 },
+      { name: 'Demon Edge', description: 'v2', status: 'planned', progress: 0 },
+    ]);
+    // "stolen" (the Dota drop mechanic) becomes the business "at_risk"
+    expect(m.bets[1]).toMatchObject({ id: 's2', status: 'at_risk', stages: [] });
   });
 
   it('maps camps to opportunities with NO game loot (gold/xp dropped)', () => {
@@ -146,6 +163,12 @@ describe('validateBusinessState — each rule fails when violated', () => {
     const m = base();
     m.bets[0].progress = 300;
     expect(validateBusinessState(m).issues).toContainEqual(expect.objectContaining({ entity: 'bet', field: 'progress' }));
+  });
+
+  it('flags a bet stage with out-of-bounds progress', () => {
+    const m = base();
+    m.bets[0].stages[0].progress = 250;
+    expect(validateBusinessState(m).issues).toContainEqual(expect.objectContaining({ entity: 'bet', field: 'stage.progress' }));
   });
 
   it('flags an invalid opportunity status', () => {
