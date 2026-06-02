@@ -1,5 +1,6 @@
 import { svgEl, positionTasksOnLane, getTowerPosition, formatShort } from '../utils.js';
 import { LANE_COLORS, HERO_PORTRAITS, TRACTION_TIER_COLOR, heroStatusColor } from '../data/heroes.js';
+import { TRACTION_TIER_MAP } from '../domain/model.js';
 import { label } from '../labels.js';
 
 export function drawSvgLayer(svgRoot, w, h, state, camera) {
@@ -144,7 +145,6 @@ export function drawSvgLayer(svgRoot, w, h, state, camera) {
   });
 
   // Traction segments — counts of users / advocates / partners by workstream
-  const TIER_NAME = { basic: 'users', wizard: 'advocates', super: 'partners' };
   (state.minions || []).forEach(m => {
     if (m.count <= 0 && !m.name) return;
     const cx = w * m.x / 100, cy = h * m.y / 100;
@@ -175,9 +175,10 @@ export function drawSvgLayer(svgRoot, w, h, state, camera) {
     }
 
     const laneName = (state.laneNames || {})[m.lane] || m.lane;
-    g.dataset.ttTitle = m.label || TIER_NAME[m.type] || 'traction';
-    g.dataset.ttDesc = m.type === 'super' ? (m.name || 'Unnamed partner') : m.count + ' ' + (m.label || TIER_NAME[m.type]);
-    g.dataset.ttStatus = (TIER_NAME[m.type] || m.type) + ' · ' + laneName + ' workstream';
+    const tierName = TRACTION_TIER_MAP[m.type] || m.type;
+    g.dataset.ttTitle = m.label || tierName || 'traction';
+    g.dataset.ttDesc = m.type === 'super' ? (m.name || 'Unnamed partner') : m.count + ' ' + (m.label || tierName);
+    g.dataset.ttStatus = tierName + ' · ' + laneName + ' workstream';
     svgRoot.appendChild(g);
   });
 

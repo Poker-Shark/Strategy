@@ -25,7 +25,7 @@ const BET_STATUS_MAP       = { available: 'planned', building: 'active', purchas
 const STAGE_STATUS_MAP     = { locked: 'planned', building: 'active', done: 'done' };
 const OPPORTUNITY_STATUS_MAP = { cleared: 'captured', stacked: 'available' };
 // Traction segment tiers (the "minion" creep tiers, in business terms).
-const TRACTION_TIER_MAP = { basic: 'users', wizard: 'advocates', super: 'partners' };
+export const TRACTION_TIER_MAP = { basic: 'users', wizard: 'advocates', super: 'partners' };
 
 // Lanes get a business name from STATE.laneNames; these are the fallbacks for
 // lanes that exist on the map but aren't in laneNames (river, enemy side).
