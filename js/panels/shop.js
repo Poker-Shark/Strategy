@@ -6,6 +6,17 @@ import { showModal } from '../ui/modal.js';
 
 let shopOpen = false;
 
+// Raw STATE statuses (kept for back-compat — briefing reads them) shown in
+// business terms. "stolen" is the Dota drop mechanic = an at-risk investment
+// (e.g. methodology leaked to a competitor). One source for label + color.
+const INVESTMENT_STATUS = {
+  available: { label: 'Planned',     color: 'var(--text3)' },
+  building:  { label: 'In Progress', color: 'var(--orange)' },
+  purchased: { label: 'Done',        color: 'var(--radiant)' },
+  stolen:    { label: 'At Risk',     color: 'var(--dire)' },
+};
+const STAGE_STATUS_LABEL = { locked: 'Planned', building: 'In Progress', done: 'Done' };
+
 export function toggleShop() {
   shopOpen = !shopOpen;
   const drawer = document.getElementById('shopDrawer');
@@ -75,25 +86,21 @@ export function renderShop() {
 }
 
 function renderItem(item) {
-  const statusColors = {
-    available: 'var(--text3)', building: 'var(--orange)', purchased: 'var(--radiant)', stolen: 'var(--dire)',
-  };
-  const statusColor = statusColors[item.status] || 'var(--text3)';
+  const statusMeta = INVESTMENT_STATUS[item.status] || { label: item.status, color: 'var(--text3)' };
+  const statusColor = statusMeta.color;
   const holder = STATE.heroes.find(h => h.id === item.holder);
   const holderPortrait = HERO_PORTRAITS[item.holder];
 
   return `
     <div class="shop-item ${item.status}">
       <div class="item-header">
-        <div class="item-icon ${item.id === 'divine_rapier' ? 'rapier' : 'mom'}">
-          ${item.id === 'divine_rapier' ? '⚔' : '🎭'}
-        </div>
+        <div class="item-icon" style="color:${statusColor};border-color:${statusColor}">◆</div>
         <div class="item-info">
           <div class="item-name">${esc(item.id === 'divine_rapier' ? label('divineRapier') : item.id === 'mask_of_madness' ? label('maskOfMadness') : item.name)}</div>
           <div class="item-subtitle">${esc(item.subtitle)}</div>
         </div>
         <div class="item-status-badge item-status-cycle" data-item-id="${item.id}" style="color:${statusColor};border-color:${statusColor}" title="Click to cycle status">
-          ${item.status.toUpperCase()}
+          ${esc(statusMeta.label)}
         </div>
       </div>
 
@@ -103,7 +110,7 @@ function renderItem(item) {
         <div class="item-components">
           ${item.components.map((c, i) => `
             <div class="item-component ${c.status}">
-              <span class="comp-status-dot" style="background:${c.status === 'done' ? 'var(--radiant)' : c.status === 'building' ? 'var(--orange)' : 'var(--text3)'}"></span>
+              <span class="comp-status-dot" style="background:${c.status === 'done' ? 'var(--radiant)' : c.status === 'building' ? 'var(--orange)' : 'var(--text3)'}" title="${esc(STAGE_STATUS_LABEL[c.status] || c.status)}"></span>
               <span class="comp-name">${c.name}</span>
               <span class="comp-desc">${c.desc}</span>
               <div class="comp-progress">
@@ -123,7 +130,7 @@ function renderItem(item) {
           <span class="item-pct item-progress-edit" data-item-id="${item.id}" data-comp-idx="" data-current="${item.progress}">${item.progress}%</span>
         </div>
         ${holder ? `
-          <div class="item-holder" title="Held by ${holder.name}">
+          <div class="item-holder" title="Owned by ${esc(holder.name)}">
             ${holderPortrait ? `<img src="${holderPortrait}" class="holder-avatar">` : holder.name.charAt(0)}
             <span>${holder.name.split(' ')[0]}</span>
           </div>

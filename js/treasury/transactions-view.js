@@ -6,6 +6,7 @@ import {
   cardOptions, categoryOptions,
 } from './constants.js';
 import { normalizeVendor } from './vendor-rules.js';
+import { hasReceipt, needsReceipt } from './receipts.js';
 import {
   getTransactions, insertTransaction, updateTransaction, deleteTransactionRow,
 } from './state.js';
@@ -25,6 +26,7 @@ export function renderTransactions(container) {
     <div class="treasury-toolbar">
       <div class="treasury-subtabs">
         ${subTabBtn('needs_review', `Needs Review (${counts.needs_review})`)}
+        ${subTabBtn('missing_receipts', `Missing Receipts (${counts.missing_receipts})`)}
         ${subTabBtn('poker_shark',  `Poker Shark Card (${counts.poker_shark})`)}
         ${subTabBtn('reimbursable', `Owner Reimbursements (${counts.reimbursable})`)}
         ${subTabBtn('all',          `All (${counts.all})`)}
@@ -53,13 +55,14 @@ export function renderTransactions(container) {
             <th>Card</th>
             <th>Category</th>
             <th>Type</th>
+            <th>Receipt</th>
             <th>Reviewed</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           ${visibleTxs.length === 0
-            ? `<tr><td colspan="9" class="treasury-empty-row">${allTxs.length === 0 ? 'No transactions yet — add one or import a statement.' : 'No matches for the current filters.'}</td></tr>`
+            ? `<tr><td colspan="10" class="treasury-empty-row">${allTxs.length === 0 ? 'No transactions yet — add one or import a statement.' : 'No matches for the current filters.'}</td></tr>`
             : visibleTxs.map(rowHTML).join('')}
         </tbody>
       </table>
@@ -109,6 +112,16 @@ export function renderTransactions(container) {
   });
 }
 
+function receiptCell(tx) {
+  if (hasReceipt(tx)) {
+    return `<a class="treasury-receipt-link" href="${esc(tx.receipt_url)}" target="_blank" rel="noopener" title="View receipt">📎</a>`;
+  }
+  if (needsReceipt(tx)) {
+    return `<span class="treasury-receipt-missing" title="Receipt missing — business purchase over the receipt threshold">⚠</span>`;
+  }
+  return '<span class="treasury-receipt-na">–</span>';
+}
+
 function subTabBtn(tab, label) {
   return `<button class="treasury-subtab ${activeSubTab === tab ? 'active' : ''}" data-tab="${tab}">${label}</button>`;
 }
@@ -117,6 +130,7 @@ function applyFilters(txs) {
   const s = searchTerm.toLowerCase();
   return txs.filter(t => {
     if (activeSubTab === 'needs_review' && t.reviewed) return false;
+    if (activeSubTab === 'missing_receipts' && !needsReceipt(t)) return false;
     if (activeSubTab === 'poker_shark' && t.card !== POKER_SHARK_CARD) return false;
     if (activeSubTab === 'reimbursable' && !t.reimbursable) return false;
     if (cardFilter && t.card !== cardFilter) return false;
@@ -127,9 +141,10 @@ function applyFilters(txs) {
 }
 
 function computeCounts(txs) {
-  const c = { needs_review: 0, poker_shark: 0, reimbursable: 0, all: txs.length };
+  const c = { needs_review: 0, missing_receipts: 0, poker_shark: 0, reimbursable: 0, all: txs.length };
   for (const t of txs) {
     if (!t.reviewed)                  c.needs_review++;
+    if (needsReceipt(t))              c.missing_receipts++;
     if (t.card === POKER_SHARK_CARD)  c.poker_shark++;
     if (t.reimbursable)               c.reimbursable++;
   }
@@ -148,6 +163,7 @@ function rowHTML(tx) {
       <td>x${esc(tx.card)} ${reimburseDot}</td>
       <td><span class="treasury-cat-pill" style="color:${cat.color};border-color:${cat.color}">${cat.name}</span></td>
       <td>${esc(tx.type)}</td>
+      <td>${receiptCell(tx)}</td>
       <td><input type="checkbox" data-tx-toggle-reviewed="${tx.id}" ${tx.reviewed ? 'checked' : ''}></td>
       <td><button class="btn-mini" data-tx-edit="${tx.id}">Edit</button></td>
     </tr>
@@ -165,6 +181,7 @@ function openAddModal(container) {
       { key: 'card', label: 'Card', type: 'select', value: POKER_SHARK_CARD, options: cardOptions() },
       { key: 'category', label: 'Category', type: 'select', value: '', options: [{ value: '', label: '(auto from vendor rules)' }, ...categoryOptions()] },
       { key: 'type', label: 'Type', type: 'select', value: 'purchase', options: TX_TYPES.map(t => ({ value: t, label: t })) },
+      { key: 'receipt_url', label: 'Receipt link (Box / Drive URL)', type: 'text' },
       { key: 'notes', label: 'Notes', type: 'textarea' },
     ],
     onSave: async (v) => {
@@ -177,6 +194,7 @@ function openAddModal(container) {
         card: v.card,
         category: v.category || norm.category,
         type: v.type,
+        receipt_url: (v.receipt_url || '').trim(),
         notes: v.notes || '',
         reviewed: true,
         flagged: false,
@@ -208,6 +226,7 @@ function openEditModal(id, container) {
       { key: 'category', label: 'Category', type: 'select', value: tx.category, options: categoryOptions() },
       { key: 'type', label: 'Type', type: 'select', value: tx.type, options: TX_TYPES.map(t => ({ value: t, label: t })) },
       { key: 'business_pct', label: 'Business %', type: 'number', value: tx.business_pct ?? 100, min: 0, max: 100 },
+      { key: 'receipt_url', label: 'Receipt link (Box / Drive URL)', type: 'text', value: tx.receipt_url ?? '' },
       { key: 'notes', label: 'Notes', type: 'textarea', value: tx.notes ?? '' },
       { key: 'reviewed', label: 'Mark as reviewed', type: 'checkbox', value: tx.reviewed },
       { key: '_delete', label: '', type: 'action', text: 'Delete this transaction', action: () => {
@@ -236,6 +255,7 @@ function openEditModal(id, container) {
         category: v.category,
         type: v.type,
         business_pct: parseInt(v.business_pct) || 100,
+        receipt_url: (v.receipt_url || '').trim(),
         notes: v.notes || '',
         reviewed: !!v.reviewed,
         reimbursable: isReimbursable(v.card),

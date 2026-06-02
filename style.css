@@ -306,7 +306,6 @@ canvas#fogCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events
 
 .item-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .item-icon{width:36px;height:36px;border-radius:4px;background:var(--void);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.item-icon.rapier{border-color:#ff6040}
 .item-info{flex:1;min-width:0}
 .item-name{font-size:13px;font-weight:700;color:var(--text)}
 .item-subtitle{font-size:10px;color:var(--text2)}
@@ -411,6 +410,10 @@ canvas#fogCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events
 .treasury-pill-reimburse{color:var(--orange);border-color:var(--orange)}
 .treasury-pill-primary{color:var(--radiant);border-color:var(--radiant)}
 .treasury-pill-personal{color:var(--text3);border-color:var(--text3)}
+.treasury-receipt-link{text-decoration:none;font-size:14px;opacity:.9}
+.treasury-receipt-link:hover{opacity:1}
+.treasury-receipt-missing{color:var(--orange);font-weight:700;cursor:default}
+.treasury-receipt-na{color:var(--text3)}
 .treasury-table tr.treasury-class-personal td{opacity:.55}
 .treasury-table tr.treasury-class-personal:hover td{opacity:1}
 .treasury-preview-summary{display:flex;gap:6px;align-items:center}
@@ -538,6 +541,11 @@ canvas#fogCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events
 .ba-action-text{font-size:13px;font-weight:600}
 .ba-action-desc{font-size:11px;color:var(--text3);margin-top:2px}
 
+.briefing-statecheck{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.bsc-item{display:flex;flex-direction:column;gap:2px;padding:10px 12px;background:var(--panel2,rgba(255,255,255,.03));border:1px solid var(--border);border-radius:8px}
+.bsc-val{font-size:18px;font-weight:700;color:var(--text)}
+.bsc-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px}
+.bsc-warn .bsc-val{color:var(--orange)}
 .briefing-economy{display:flex;justify-content:center;gap:32px;padding:16px 0;margin-bottom:8px}
 .be-item{display:flex;flex-direction:column;align-items:center;gap:2px}
 .be-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text3)}

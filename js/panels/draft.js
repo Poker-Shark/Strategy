@@ -1,7 +1,6 @@
 import { STATE, saveLocal } from '../state.js';
 import { HERO_PORTRAITS, POS3_CANDIDATES, portraitUrl, LANE_COLORS } from '../data/heroes.js';
 import { truncate, esc, levelToVision, invalidatePositionCache } from '../utils.js';
-import { renderEconomy } from './economy.js';
 import { label } from '../labels.js';
 import { showModal, showConfirm } from '../ui/modal.js';
 
@@ -267,12 +266,12 @@ function cycleTowerStatus(lane, id) {
 // ── Camp management ──
 
 const CAMP_PRESETS = [
-  { name:'Influencer Deal', desc:'Partner with poker content creator for promotion.', lane:'top', type:'medium', gold:1000, xp:2 },
-  { name:'Conference Talk', desc:'Present at poker/AI conference. Credibility boost.', lane:'bot', type:'medium', gold:200, xp:4 },
-  { name:'Podcast Guest', desc:'Appear on a poker podcast. Low cost, high reach.', lane:'top', type:'small', gold:400, xp:1 },
-  { name:'Discord Community', desc:'Build an engaged community server. Retention play.', lane:'mid', type:'medium', gold:300, xp:2 },
-  { name:'Blog Post Series', desc:'SEO-driven content about poker strategy. Organic traffic.', lane:'top', type:'small', gold:500, xp:1 },
-  { name:'Academic Review', desc:'Get solver methodology peer-reviewed. Major credibility.', lane:'bot', type:'medium', gold:100, xp:5 },
+  { name:'Influencer Deal', desc:'Partner with poker content creator for promotion.', lane:'top', type:'medium' },
+  { name:'Conference Talk', desc:'Present at poker/AI conference. Credibility boost.', lane:'bot', type:'medium' },
+  { name:'Podcast Guest', desc:'Appear on a poker podcast. Low cost, high reach.', lane:'top', type:'small' },
+  { name:'Discord Community', desc:'Build an engaged community server. Retention play.', lane:'mid', type:'medium' },
+  { name:'Blog Post Series', desc:'SEO-driven content about poker strategy. Organic traffic.', lane:'top', type:'small' },
+  { name:'Academic Review', desc:'Get solver methodology peer-reviewed. Major credibility.', lane:'bot', type:'medium' },
 ];
 
 const CAMP_LANE_POSITIONS = {
@@ -319,11 +318,9 @@ function renderCampCard(c) {
     <div style="display:flex;align-items:center;gap:4px;font-size:11px">
       <span style="color:${isCleared ? 'var(--radiant)' : 'var(--gold)'};font-size:8px">${isCleared ? '✓' : '◆'}</span>
       <span style="font-weight:600;flex:1;${isCleared ? 'text-decoration:line-through;opacity:0.5' : ''}">${esc(c.name)}</span>
-      <span style="font-size:9px;color:var(--gold)">${c.gold ? '$'+c.gold : ''}</span>
-      <span style="font-size:9px;color:var(--purple)">${c.xp ? '+'+c.xp+'xp' : ''}</span>
     </div>
     <div style="display:flex;gap:2px;margin-top:2px">
-      <button class="btn camp-clear-btn" data-camp-id="${c.id}" style="font-size:8px;padding:1px 4px">${isCleared ? 'Undo' : 'Clear'}</button>
+      <button class="btn camp-clear-btn" data-camp-id="${c.id}" style="font-size:8px;padding:1px 4px">${isCleared ? 'Undo' : label('clearAction')}</button>
       <button class="btn camp-edit-btn" data-camp-id="${c.id}" style="font-size:8px;padding:1px 4px">Edit</button>
       <button class="btn camp-delete-btn" data-camp-id="${c.id}" style="font-size:8px;padding:1px 4px">✕</button>
     </div>
@@ -334,8 +331,7 @@ function clearCamp(id) {
   const camp = (STATE.neutralCamps || []).find(c => c.id === id);
   if (!camp) return;
   camp.status = camp.status === 'cleared' ? 'stacked' : 'cleared';
-  if (camp.status === 'cleared' && camp.gold) STATE.economy.gold += camp.gold;
-  saveLocal(); renderDraftPanel(_onRedraw); renderEconomy(); if (_onRedraw) _onRedraw();
+  saveLocal(); renderDraftPanel(_onRedraw); if (_onRedraw) _onRedraw();
 }
 
 function editCamp(id) {
@@ -346,11 +342,9 @@ function editCamp(id) {
     fields: [
       { key: 'name', label: 'Name', type: 'text', value: camp.name, required: true },
       { key: 'desc', label: 'Description', type: 'textarea', value: camp.desc },
-      { key: 'gold', label: 'Gold Reward', type: 'number', value: camp.gold || 0, min: 0 },
-      { key: 'xp', label: 'XP Reward', type: 'number', value: camp.xp || 0, min: 0 },
     ],
     onSave: (v) => {
-      camp.name = v.name; camp.desc = v.desc || ''; camp.gold = v.gold; camp.xp = v.xp;
+      camp.name = v.name; camp.desc = v.desc || '';
       saveLocal(); renderDraftPanel(_onRedraw); if (_onRedraw) _onRedraw();
     },
   });
@@ -379,13 +373,11 @@ function addCamp() {
         { value: 'bot', label: (STATE.laneNames || {}).bot || 'Solver' },
         { value: 'dire', label: label('direLabel') },
       ]},
-      { key: 'gold', label: 'Gold Reward', type: 'number', value: 500, min: 0 },
-      { key: 'xp', label: 'XP Reward', type: 'number', value: 2, min: 0 },
     ],
     onSave: (v) => {
       const positions = CAMP_LANE_POSITIONS[v.lane] || CAMP_LANE_POSITIONS.mid;
       const pos = positions[Math.floor(Math.random() * positions.length)];
-      STATE.neutralCamps.push({ id: 'nc' + Date.now(), name: v.name, desc: v.desc || '', lane: v.lane, type: 'medium', x: pos.x + (Math.random()*6-3), y: pos.y + (Math.random()*6-3), status: 'stacked', gold: v.gold, xp: v.xp });
+      STATE.neutralCamps.push({ id: 'nc' + Date.now(), name: v.name, desc: v.desc || '', lane: v.lane, type: 'medium', x: pos.x + (Math.random()*6-3), y: pos.y + (Math.random()*6-3), status: 'stacked' });
       saveLocal(); renderDraftPanel(_onRedraw); if (_onRedraw) _onRedraw();
     },
   });
@@ -396,6 +388,6 @@ function addPreset(idx) {
   if (!preset) return;
   const positions = CAMP_LANE_POSITIONS[preset.lane] || CAMP_LANE_POSITIONS.mid;
   const pos = positions[Math.floor(Math.random() * positions.length)];
-  STATE.neutralCamps.push({ id: 'nc' + Date.now(), name: preset.name, desc: preset.desc, lane: preset.lane, type: preset.type, x: pos.x + (Math.random()*6-3), y: pos.y + (Math.random()*6-3), status: 'stacked', gold: preset.gold, xp: preset.xp });
+  STATE.neutralCamps.push({ id: 'nc' + Date.now(), name: preset.name, desc: preset.desc, lane: preset.lane, type: preset.type, x: pos.x + (Math.random()*6-3), y: pos.y + (Math.random()*6-3), status: 'stacked' });
   saveLocal(); renderDraftPanel(_onRedraw); if (_onRedraw) _onRedraw();
 }
