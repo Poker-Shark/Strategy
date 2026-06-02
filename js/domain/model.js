@@ -16,6 +16,7 @@ export const MEMBER_STATUS      = ['active', 'at_risk', 'vacant'];
 export const COMPETITOR_LEVEL   = ['watch', 'contender', 'dominant'];
 export const BET_STATUS         = ['planned', 'active', 'done', 'at_risk'];
 export const OPPORTUNITY_STATUS = ['available', 'captured'];
+export const TRACTION_TIER      = ['users', 'advocates', 'partners'];
 
 // Legacy game value → business value mappings.
 const MEMBER_STATUS_MAP    = { active: 'active', warning: 'at_risk', danger: 'at_risk', empty: 'vacant' };
@@ -23,6 +24,8 @@ const MILESTONE_STATUS_MAP = { achieved: 'done', next: 'in_progress', locked: 'p
 const BET_STATUS_MAP       = { available: 'planned', building: 'active', purchased: 'done', stolen: 'at_risk', planned: 'planned' };
 const STAGE_STATUS_MAP     = { locked: 'planned', building: 'active', done: 'done' };
 const OPPORTUNITY_STATUS_MAP = { cleared: 'captured', stacked: 'available' };
+// Traction segment tiers (the "minion" creep tiers, in business terms).
+export const TRACTION_TIER_MAP = { basic: 'users', wizard: 'advocates', super: 'partners' };
 
 // Lanes get a business name from STATE.laneNames; these are the fallbacks for
 // lanes that exist on the map but aren't in laneNames (river, enemy side).
@@ -149,7 +152,16 @@ export function normalizeBusinessState(state = STATE) {
     })),
   }));
 
-  return { workstreams, milestones, team, deployments, competitors, opportunities, bets };
+  // Traction: counts of real growth segments by workstream (the map "minions").
+  const traction = (state.minions || []).map(m => ({
+    id: m.id,
+    segment: m.name || m.label || '',
+    tier: TRACTION_TIER_MAP[m.type] || 'users',
+    count: Number(m.count) || 0,
+    workstream: m.lane || '',
+  }));
+
+  return { workstreams, milestones, team, deployments, competitors, opportunities, bets, traction };
 }
 
 // ── Validation ──
@@ -222,6 +234,12 @@ export function validateBusinessState(model) {
     }
   }
 
+  requireUnique(model.traction || [], 'traction');
+  for (const t of model.traction || []) {
+    if (!inEnum(t.tier, TRACTION_TIER)) add('traction', t.id, 'tier', `invalid tier "${t.tier}"`);
+    if (Number(t.count) < 0) add('traction', t.id, 'count', 'negative count');
+  }
+
   for (const d of model.deployments || []) {
     if (!memberIds.has(d.memberId)) add('deployment', d.memberId, 'memberId', 'deployment references unknown member');
     if (!inBounds(d.x) || !inBounds(d.y)) add('deployment', d.memberId, 'position', 'coordinates out of 0-100');
@@ -287,6 +305,10 @@ export function businessSummary(model) {
       total: (model.opportunities || []).length,
       available: count(model.opportunities || [], o => o.status === 'available'),
       captured: count(model.opportunities || [], o => o.status === 'captured'),
+    },
+    traction: {
+      segments: (model.traction || []).length,
+      total: (model.traction || []).reduce((s, t) => s + (Number(t.count) || 0), 0),
     },
   };
 }

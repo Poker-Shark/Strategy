@@ -21,12 +21,8 @@ export const POS3_CANDIDATES = [
 
 export const LANE_COLORS = { mid: '#e0a030', top: '#4dcc70', bot: '#4488dd' };
 
-const CREEP_CDN = 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/units/';
-export const CREEP_PORTRAITS = {
-  basic: CREEP_CDN + 'npc_dota_creep_goodguys_melee.png',
-  wizard: CREEP_CDN + 'npc_dota_creep_goodguys_ranged.png',
-  super: CREEP_CDN + 'npc_dota_goodguys_siege.png',
-};
+// Traction segment tier colors (users / advocates / partners).
+export const TRACTION_TIER_COLOR = { basic: '#4dcc70', wizard: '#78e68c', super: '#f0c040' };
 
 // HP = hours committed per week (100% = 40hrs), MP = morale (0-100)
 export const HP_MAX_HOURS = 40;
@@ -81,7 +77,6 @@ export function preloadPortraits() {
   const urls = new Set([
     ...Object.values(HERO_PORTRAITS),
     ...POS3_CANDIDATES.map(c => portraitUrl(c.slug)),
-    ...Object.values(CREEP_PORTRAITS),
   ]);
   urls.forEach(url => { new Image().src = url; });
 }

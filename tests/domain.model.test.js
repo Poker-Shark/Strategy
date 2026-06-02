@@ -39,6 +39,11 @@ function fixture() {
       { id: 'nc2', name: 'Conference', desc: 'cred', lane: 'bot', status: 'cleared', gold: 200, xp: 4 },
       { id: 'nc9', name: 'Power Users', desc: 'hard', lane: 'dire', status: 'stacked' },
     ],
+    minions: [
+      { id: 'mn1', type: 'basic',  count: 120, lane: 'mid', label: 'Paying Users' },
+      { id: 'mn2', type: 'wizard', count: 8,   lane: 'mid', label: 'Community Leaders' },
+      { id: 'mn3', type: 'super',  count: 2,   lane: 'bot', label: 'Sponsors', name: 'Acme Co' },
+    ],
   };
 }
 
@@ -95,6 +100,14 @@ describe('normalizeBusinessState', () => {
 
   it('records deployments from hero positions', () => {
     expect(m.deployments).toEqual([{ memberId: 'a', x: 40, y: 55 }, { memberId: 'b', x: 30, y: 60 }]);
+  });
+
+  it('maps minions to traction segments with business tiers', () => {
+    expect(m.traction).toHaveLength(3);
+    expect(m.traction[0]).toEqual({ id: 'mn1', segment: 'Paying Users', tier: 'users', count: 120, workstream: 'mid' });
+    expect(m.traction[1].tier).toBe('advocates'); // wizard
+    // super carries a specific name as the segment
+    expect(m.traction[2]).toMatchObject({ tier: 'partners', segment: 'Acme Co', count: 2 });
   });
 });
 
@@ -176,6 +189,12 @@ describe('validateBusinessState — each rule fails when violated', () => {
     m.opportunities[0].status = 'farming';
     expect(validateBusinessState(m).issues).toContainEqual(expect.objectContaining({ entity: 'opportunity', field: 'status' }));
   });
+
+  it('flags a negative traction count', () => {
+    const m = base();
+    m.traction[0].count = -5;
+    expect(validateBusinessState(m).issues).toContainEqual(expect.objectContaining({ entity: 'traction', field: 'count' }));
+  });
 });
 
 describe('selectors', () => {
@@ -211,6 +230,9 @@ describe('businessSummary', () => {
   });
   it('rolls up opportunities', () => {
     expect(s.opportunities).toMatchObject({ total: 3, available: 2, captured: 1 });
+  });
+  it('rolls up traction (segments + total count)', () => {
+    expect(s.traction).toMatchObject({ segments: 3, total: 130 });
   });
 });
 

@@ -1,5 +1,6 @@
 import { svgEl, positionTasksOnLane, getTowerPosition, formatShort } from '../utils.js';
-import { LANE_COLORS, HERO_PORTRAITS, CREEP_PORTRAITS, heroStatusColor } from '../data/heroes.js';
+import { LANE_COLORS, HERO_PORTRAITS, TRACTION_TIER_COLOR, heroStatusColor } from '../data/heroes.js';
+import { TRACTION_TIER_MAP } from '../domain/model.js';
 import { label } from '../labels.js';
 
 export function drawSvgLayer(svgRoot, w, h, state, camera) {
@@ -143,45 +144,41 @@ export function drawSvgLayer(svgRoot, w, h, state, camera) {
     svgRoot.appendChild(g);
   });
 
-  // Minions (tiered traction units with Dota creep portraits)
+  // Traction segments — counts of users / advocates / partners by workstream
   (state.minions || []).forEach(m => {
     if (m.count <= 0 && !m.name) return;
     const cx = w * m.x / 100, cy = h * m.y / 100;
     const g = svgEl('g', { style: 'cursor:grab' });
     g.dataset.minionId = m.id;
 
-    const portrait = CREEP_PORTRAITS[m.type];
     const r = m.type === 'super' ? 14 : m.type === 'wizard' ? 10 : 7;
-    const borderColor = m.type === 'super' ? '#f0c040' : m.type === 'wizard' ? '#78e68c' : '#4dcc70';
+    const tierColor = TRACTION_TIER_COLOR[m.type] || TRACTION_TIER_COLOR.basic;
 
-    // Portrait circle
-    const clipId = 'mclip_' + m.id;
-    const clip = svgEl('clipPath', { id: clipId });
-    clip.appendChild(svgEl('circle', { cx, cy, r: r - 1.5 }));
-    defs.appendChild(clip);
-
-    g.appendChild(svgEl('circle', { cx, cy, r, fill:'rgba(0,0,0,0.4)', stroke: borderColor, 'stroke-width': m.type === 'super' ? 1.5 : 1 }));
-    g.appendChild(svgEl('image', { href: portrait, x: cx-(r-1.5), y: cy-(r-1.5), width: (r-1.5)*2, height: (r-1.5)*2, 'clip-path': `url(#${clipId})`, preserveAspectRatio: 'xMidYMid slice' }));
+    // Clean tier marker (no game sprite): outer ring + solid core
+    g.appendChild(svgEl('circle', { cx, cy, r, fill:'rgba(0,0,0,0.45)', stroke: tierColor, 'stroke-width': m.type === 'super' ? 1.5 : 1 }));
+    g.appendChild(svgEl('circle', { cx, cy, r: r * 0.45, fill: tierColor, opacity: 0.85 }));
 
     // Count badge (top-right)
     if (m.count > 0) {
       const badgeR = m.type === 'super' ? 6 : 5;
       const bx = cx + r - 2, by = cy - r + 2;
-      g.appendChild(svgEl('circle', { cx: bx, cy: by, r: badgeR, fill: '#19242f', stroke: borderColor, 'stroke-width': 0.8 }));
-      const countText = svgEl('text', { x: bx, y: by + 2.5, 'text-anchor': 'middle', fill: borderColor, 'font-size': m.count >= 1000 ? 4 : 5, 'font-weight': 700 });
+      g.appendChild(svgEl('circle', { cx: bx, cy: by, r: badgeR, fill: '#19242f', stroke: tierColor, 'stroke-width': 0.8 }));
+      const countText = svgEl('text', { x: bx, y: by + 2.5, 'text-anchor': 'middle', fill: tierColor, 'font-size': m.count >= 1000 ? 4 : 5, 'font-weight': 700 });
       countText.textContent = formatShort(m.count);
       g.appendChild(countText);
     }
 
-    // Name label for super minions
+    // Partners carry a specific segment name
     if (m.type === 'super' && m.name) {
       const nm = svgEl('text', { x:cx, y:cy+r+8, 'text-anchor':'middle', fill:'rgba(240,192,64,0.5)', 'font-size':5, 'font-weight':600 });
       nm.textContent = m.name; g.appendChild(nm);
     }
 
-    g.dataset.ttTitle = m.label || m.type;
-    g.dataset.ttDesc = m.type === 'super' ? (m.name || 'Unnamed partner') : m.count + ' ' + m.label;
-    g.dataset.ttStatus = m.type + ' — ' + m.lane + ' lane';
+    const laneName = (state.laneNames || {})[m.lane] || m.lane;
+    const tierName = TRACTION_TIER_MAP[m.type] || m.type;
+    g.dataset.ttTitle = m.label || tierName || 'traction';
+    g.dataset.ttDesc = m.type === 'super' ? (m.name || 'Unnamed partner') : m.count + ' ' + (m.label || tierName);
+    g.dataset.ttStatus = tierName + ' · ' + laneName + ' workstream';
     svgRoot.appendChild(g);
   });
 
