@@ -8,9 +8,12 @@ let shopOpen = false;
 
 // Raw STATE statuses (kept for back-compat — briefing reads them) shown in
 // business terms. "stolen" is the Dota drop mechanic = an at-risk investment
-// (e.g. methodology leaked to a competitor).
-const INVESTMENT_STATUS_LABEL = {
-  available: 'Planned', building: 'In Progress', purchased: 'Done', stolen: 'At Risk',
+// (e.g. methodology leaked to a competitor). One source for label + color.
+const INVESTMENT_STATUS = {
+  available: { label: 'Planned',     color: 'var(--text3)' },
+  building:  { label: 'In Progress', color: 'var(--orange)' },
+  purchased: { label: 'Done',        color: 'var(--radiant)' },
+  stolen:    { label: 'At Risk',     color: 'var(--dire)' },
 };
 const STAGE_STATUS_LABEL = { locked: 'Planned', building: 'In Progress', done: 'Done' };
 
@@ -83,10 +86,8 @@ export function renderShop() {
 }
 
 function renderItem(item) {
-  const statusColors = {
-    available: 'var(--text3)', building: 'var(--orange)', purchased: 'var(--radiant)', stolen: 'var(--dire)',
-  };
-  const statusColor = statusColors[item.status] || 'var(--text3)';
+  const statusMeta = INVESTMENT_STATUS[item.status] || { label: item.status, color: 'var(--text3)' };
+  const statusColor = statusMeta.color;
   const holder = STATE.heroes.find(h => h.id === item.holder);
   const holderPortrait = HERO_PORTRAITS[item.holder];
 
@@ -99,7 +100,7 @@ function renderItem(item) {
           <div class="item-subtitle">${esc(item.subtitle)}</div>
         </div>
         <div class="item-status-badge item-status-cycle" data-item-id="${item.id}" style="color:${statusColor};border-color:${statusColor}" title="Click to cycle status">
-          ${esc(INVESTMENT_STATUS_LABEL[item.status] || item.status)}
+          ${esc(statusMeta.label)}
         </div>
       </div>
 
