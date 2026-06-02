@@ -4,6 +4,7 @@ import { esc, formatNum, formatShort } from '../utils.js';
 import { openHeroDetail } from './hero-detail.js';
 import { label } from '../labels.js';
 import { showModal, closeModal } from '../ui/modal.js';
+import { normalizeBusinessState, validateBusinessState, businessSummary } from '../domain/model.js';
 
 let briefingVisible = true;
 let _onEnter = null;
@@ -111,6 +112,10 @@ function renderBriefing() {
   const e = STATE.economy || {};
   const alerts = getAlerts();
   const actions = getTopActions();
+  const model = normalizeBusinessState(STATE);
+  const summary = businessSummary(model);
+  const health = validateBusinessState(model);
+  if (!health.ok) console.warn('[StateCheck] board has data issues:', health.issues);
 
   el.innerHTML = `
     <div class="briefing-content">
@@ -190,6 +195,18 @@ function renderBriefing() {
               </div>
             </div>
           `).join('') : '<div style="color:var(--text3);font-size:13px">No active objectives</div>'}
+        </div>
+      </div>
+
+      <div class="briefing-section">
+        <div class="briefing-section-title">STATE CHECK — where the business stands</div>
+        <div class="briefing-statecheck">
+          <div class="bsc-item"><span class="bsc-val">${summary.milestones.pct}%</span><span class="bsc-label">milestones done (${summary.milestones.done}/${summary.milestones.done + summary.milestones.inProgress + summary.milestones.planned})</span></div>
+          <div class="bsc-item"><span class="bsc-val">${summary.team.active}</span><span class="bsc-label">active · ${summary.team.atRisk} at-risk · ${summary.team.vacant} vacant</span></div>
+          <div class="bsc-item"><span class="bsc-val">${summary.team.totalHours}</span><span class="bsc-label">team hrs/wk</span></div>
+          <div class="bsc-item"><span class="bsc-val">${summary.workstreams.active}/${summary.workstreams.total}</span><span class="bsc-label">workstreams active${summary.workstreams.dark ? ` · ${summary.workstreams.dark} dark` : ''}</span></div>
+          <div class="bsc-item"><span class="bsc-val">${summary.competitors.top ? esc(summary.competitors.top.name) : '—'}</span><span class="bsc-label">top competitor${summary.competitors.top ? ' · ' + esc(summary.competitors.top.level) : ''}</span></div>
+          <div class="bsc-item ${health.ok ? '' : 'bsc-warn'}"><span class="bsc-val">${health.ok ? '✓' : health.issues.length}</span><span class="bsc-label">${health.ok ? 'board data is consistent' : 'data issues — open console'}</span></div>
         </div>
       </div>
 
