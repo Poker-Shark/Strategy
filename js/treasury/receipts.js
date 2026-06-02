@@ -44,7 +44,7 @@ export function needsReceipt(tx, opts = {}) {
 // missing  — expected & no receipt   (the worklist)
 // exempt   — not expected (sub-threshold purchase, or non-purchase)
 export function receiptCoverage(txs, opts = {}) {
-  const out = { covered: 0, missing: 0, exempt: 0, total: 0, pct: 100, missingAmount: 0, missingRows: [] };
+  const out = { covered: 0, missing: 0, exempt: 0, total: 0, missingAmount: 0, missingRows: [] };
   for (const tx of txs || []) {
     out.total++;
     if (!isReceiptExpected(tx, opts)) { out.exempt++; continue; }

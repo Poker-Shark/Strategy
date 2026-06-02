@@ -201,7 +201,7 @@ function renderBriefing() {
       <div class="briefing-section">
         <div class="briefing-section-title">STATE CHECK — where the business stands</div>
         <div class="briefing-statecheck">
-          <div class="bsc-item"><span class="bsc-val">${summary.milestones.pct}%</span><span class="bsc-label">milestones done (${summary.milestones.done}/${summary.milestones.done + summary.milestones.inProgress + summary.milestones.planned})</span></div>
+          <div class="bsc-item"><span class="bsc-val">${summary.milestones.pct}%</span><span class="bsc-label">milestones done (${summary.milestones.done}/${summary.milestones.total})</span></div>
           <div class="bsc-item"><span class="bsc-val">${summary.team.active}</span><span class="bsc-label">active · ${summary.team.atRisk} at-risk · ${summary.team.vacant} vacant</span></div>
           <div class="bsc-item"><span class="bsc-val">${summary.team.totalHours}</span><span class="bsc-label">team hrs/wk</span></div>
           <div class="bsc-item"><span class="bsc-val">${summary.workstreams.active}/${summary.workstreams.total}</span><span class="bsc-label">workstreams active${summary.workstreams.dark ? ` · ${summary.workstreams.dark} dark` : ''}</span></div>

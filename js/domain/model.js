@@ -146,24 +146,27 @@ export function validateBusinessState(model) {
   const inEnum = (val, enumVals) => enumVals.includes(val);
   const inBounds = (n) => Number.isFinite(n) && n >= 0 && n <= 100;
 
-  const workstreamIds = new Set((model.workstreams || []).map(w => w.id));
-  const memberIds = new Set((model.team || []).map(m => m.id));
+  const workstreams = model.workstreams || [];
+  const milestones = model.milestones || [];
+  const team = model.team || [];
+  const workstreamIds = new Set(workstreams.map(w => w.id));
+  const memberIds = new Set(team.map(m => m.id));
 
-  requireUnique(model.workstreams || [], 'workstream');
-  for (const w of model.workstreams || []) {
+  requireUnique(workstreams, 'workstream');
+  for (const w of workstreams) {
     if (!w.name) add('workstream', w.id, 'name', 'empty name');
     if (!inEnum(w.status, WORKSTREAM_STATUS)) add('workstream', w.id, 'status', `invalid status "${w.status}"`);
   }
 
-  requireUnique(model.milestones || [], 'milestone');
-  for (const m of model.milestones || []) {
+  requireUnique(milestones, 'milestone');
+  for (const m of milestones) {
     if (!m.name) add('milestone', m.id, 'name', 'empty name');
     if (!inEnum(m.status, MILESTONE_STATUS)) add('milestone', m.id, 'status', `invalid status "${m.status}"`);
     if (!workstreamIds.has(m.workstream)) add('milestone', m.id, 'workstream', `unknown workstream "${m.workstream}"`);
   }
 
-  requireUnique(model.team || [], 'member');
-  for (const m of model.team || []) {
+  requireUnique(team, 'member');
+  for (const m of team) {
     if (!m.name) add('member', m.id, 'name', 'empty name');
     if (!inEnum(m.status, MEMBER_STATUS)) add('member', m.id, 'status', `invalid status "${m.status}"`);
     if (m.status !== 'vacant') {
@@ -217,7 +220,7 @@ export function businessSummary(model) {
 
   const count = (arr, pred) => arr.filter(pred).length;
   const done = count(ms, m => m.status === 'done');
-  const topCompetitor = [...comps].sort((a, b) => (b.threat || 0) - (a.threat || 0))[0] || null;
+  const topCompetitor = comps.reduce((top, c) => ((c.threat || 0) > (top?.threat || 0) ? c : top), null);
 
   return {
     workstreams: {
@@ -236,6 +239,7 @@ export function businessSummary(model) {
       done,
       inProgress: count(ms, m => m.status === 'in_progress'),
       planned: count(ms, m => m.status === 'planned'),
+      total: ms.length,
       pct: ms.length ? Math.round((done / ms.length) * 100) : 0,
     },
     competitors: {
